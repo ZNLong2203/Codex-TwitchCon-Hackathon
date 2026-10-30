@@ -1,6 +1,8 @@
+import type { ExpeditionScript } from './expedition.js';
 import type { Role } from './contracts.js';
 
 export type DirectorBrief = {
+  expedition?: ExpeditionScript;
   title: string;
   location: string;
   briefing: string;

@@ -12,11 +12,12 @@ export function createApplication(options: {
   port: number;
   persist?: boolean;
   dataDir?: string;
+  initialMode?: 'classic' | 'expedition';
   director?: { key?: string; fetch?: typeof fetch; clock?: () => number };
 }) {
   const app = express();
   app.disable('x-powered-by');
-  const engine = new MissionEngine();
+  const engine = new MissionEngine(Date.now, options.initialMode ?? 'expedition');
   const cookie = randomBytes(32).toString('hex');
   const overlayKey = randomBytes(24).toString('hex');
   const clients = new Map<Response, boolean>();
@@ -54,6 +55,7 @@ export function createApplication(options: {
     demoRunning: !!demoTimer,
     now: Date.now(),
     ai: director.view(engine.state.id),
+    diagnostics: { overlayClients: [...clients.values()].filter((operator) => !operator).length },
   });
   function broadcast() {
     dirty = true;
@@ -211,7 +213,7 @@ export function createApplication(options: {
   });
   app.post('/api/control', (req, res) => {
     const { action } = z
-      .object({ action: z.enum(['start', 'pause', 'resume', 'end', 'reset']) })
+      .object({ action: z.enum(['start', 'pause', 'resume', 'end', 'reset', 'lock-route']) })
       .parse(req.body);
     if (
       action === 'start' &&
@@ -224,6 +226,9 @@ export function createApplication(options: {
     if (action === 'reset') {
       stopDemo();
       engine.reset();
+    } else if (action === 'lock-route') {
+      engine.tick();
+      if (!engine.lockRoute()) throw new DirectorError('The route ballot is not open.', 409);
     } else engine.control(action);
     if (['end', 'pause'].includes(action)) stopDemo();
     broadcast();
@@ -249,14 +254,22 @@ export function createApplication(options: {
     }
     const body = z
       .object({
-        action: z.enum(['crew', 'raid', 'autoplay', 'stop']),
+        action: z.enum(['crew', 'raid', 'autoplay', 'stop', 'route']),
         role: z.enum(roles).optional(),
+        route: z.enum(['beacon', 'drift']).optional(),
       })
       .parse(req.body);
     if (body.action === 'stop') stopDemo();
     else if (engine.state.status !== 'active') {
       res.status(409).json({ error: 'Start the mission to rehearse.' });
       return;
+    } else if (body.action === 'route') {
+      engine.chat({
+        id: randomUUID(),
+        userId: randomUUID(),
+        name: 'Rehearsal voter',
+        text: `!route ${body.route ?? 'beacon'}`,
+      });
     } else if (body.action === 'raid')
       engine.raid({ id: randomUUID(), name: 'nebula_nova', viewers: 42 });
     else if (body.action === 'crew')
@@ -266,7 +279,13 @@ export function createApplication(options: {
         name: ['luna.exe', 'orbit_owl', 'cozycosmos', 'pixelpilot', 'stardust', 'nova'][
           demoIndex++ % 6
         ]!,
-        text: roleInfo[body.role ?? roles[demoIndex % 3]!].command,
+        text: roleInfo[
+          body.role ??
+            (engine.state.expedition &&
+            roles.includes(engine.state.expedition.phase as (typeof roles)[number])
+              ? (engine.state.expedition.phase as (typeof roles)[number])
+              : roles[demoIndex % 3]!)
+        ].command,
       });
     else if (body.action === 'autoplay' && !demoTimer) {
       demoTimer = setInterval(() => {
@@ -289,7 +308,13 @@ export function createApplication(options: {
             'moonchild',
             'moss.jpg',
           ][index % 8]!,
-          text: roleInfo[roles[index % 3]!].command,
+          text:
+            engine.state.expedition?.phase === 'choice'
+              ? `!route ${index % 2 ? 'drift' : 'beacon'}`
+              : roleInfo[
+                  (engine.state.expedition?.phase as (typeof roles)[number] | undefined) ??
+                    roles[index % 3]!
+                ].command,
         });
         broadcast();
       }, 1800);
@@ -326,7 +351,18 @@ export function createApplication(options: {
     const { crew: _, ...publicMission } = mission;
     res.setHeader('Content-Disposition', 'attachment; filename="raid-relay-flight-recorder.json"');
     res.json({
-      format: 'raid-relay/1',
+      format: 'raid-relay/2',
+      integration: {
+        status: bridge.connection.status,
+        channel: bridge.connection.channel,
+        subscriptions: bridge.connection.subscriptions,
+        acceptedCommands: bridge.connection.acceptedCommands,
+        incomingRaids: bridge.connection.incomingRaids,
+        recoveries: bridge.connection.recoveries,
+        overlayClients: [...clients.values()].filter((operator) => !operator).length,
+        obsCompositing:
+          'Requires human verification in OBS; an overlay connection alone is not proof.',
+      },
       exportedAt: new Date().toISOString(),
       ...publicMission,
       note: 'Local session evidence. Rehearsal data is simulated. First action means first action in this mission, not first visit to the Twitch channel.',
@@ -359,6 +395,7 @@ export function createApplication(options: {
       const ai = director.view(engine.state.id);
       if (
         engine.state.status === 'active' &&
+        !engine.state.expedition &&
         ai.autoDraftOnRaid &&
         ai.configured &&
         ai.status !== 'generating' &&

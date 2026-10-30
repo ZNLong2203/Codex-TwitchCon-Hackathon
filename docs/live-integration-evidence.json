@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-10-30T07:43:21.568Z",
+  "mode": "expedition",
+  "mission": {
+    "source": "twitch",
+    "status": "paused",
+    "title": "The Phytoplankton Ark",
+    "phase": "scout"
+  },
+  "twitch": {
+    "status": "live",
+    "subscriptions": 2,
+    "startupHttpAttempts": 3,
+    "notifications": 0,
+    "acceptedCommands": 0,
+    "acceptedRaids": 0,
+    "recoveries": 0
+  },
+  "ai": {
+    "model": "gemini-3.8-flash",
+    "attempts": 1,
+    "validatedResponses": 1,
+    "fallbackReason": null,
+    "inputTokens": 598,
+    "outputTokens": 531,
+    "estimatedUsd": 0.00243975
+  },
+  "limits": [
+    "Chat playtest deferred by owner; no live commands were accepted at this check.",
+    "No real incoming raid, network recovery or OBS compositing was verified.",
+    "Rehearsal separately completes both routes in automated tests.",
+    "Local observations; not an independently signed attestation."
+  ]
+}

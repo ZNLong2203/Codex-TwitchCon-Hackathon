@@ -92,7 +92,7 @@ test('Gemini REST request uses a header key, bounded structured output and aggre
   );
   const body = JSON.parse(f.request!.init!.body as string);
   assert.equal(body.generationConfig.responseMimeType, 'application/json');
-  assert.equal(body.generationConfig.maxOutputTokens, 2048);
+  assert.equal(body.generationConfig.maxOutputTokens, 3072);
   assert.deepEqual(body.generationConfig.thinkingConfig, { thinkingLevel: 'low' });
   const context = body.contents[0].parts[0].text;
   for (const secret of [
@@ -162,7 +162,7 @@ test('provider errors never echo keys or provider response bodies and keep the r
   });
   await assert.rejects(() => ai.generate(engine.view(), 'Story', 'en'), /quota/);
   const v = ai.view(engine.state.id);
-  assert.equal(v.reservedUsd, 0.04);
+  assert.equal(v.reservedUsd, 0.05);
   assert.equal(v.status, 'error');
   assert.ok(!JSON.stringify(v).includes('secret-do-not-return'));
   assert.ok(!JSON.stringify(v).includes('private-provider-detail'));
@@ -305,7 +305,7 @@ test('3.8 Flash is primary and a transient failure uses exactly one labeled Flas
   assert.deepEqual(levels, ['low', 'minimal']);
   assert.equal(draft.model, GEMINI_FALLBACK);
   assert.equal(ai.view(engine.state.id).lastModel, GEMINI_FALLBACK);
-  assert.equal(ai.view(engine.state.id).reservedUsd, 0.04);
+  assert.equal(ai.view(engine.state.id).reservedUsd, 0.05);
   assert.equal(ai.view(engine.state.id).calls, 2);
 });
 test('bad credentials and safety refusals do not trigger fallback', async () => {

@@ -1,3 +1,4 @@
+import type { ExpeditionState, ExpeditionView } from './expedition.js';
 import type { DirectorCandidate, DirectiveRuntime } from './director.js';
 export const roles = ['scout', 'engineer', 'pilot'] as const;
 export type Role = (typeof roles)[number];
@@ -54,6 +55,8 @@ export const missions = [
   },
 ] as const;
 export type Settings = {
+  mode?: 'classic' | 'expedition';
+  crewPerAct?: number;
   missionId: 'quiet-signal' | 'last-garden' | 'homeward';
   goal: number;
   durationMinutes: number;
@@ -86,10 +89,15 @@ export type MissionState = {
   welcomed: number;
   raid: { name: string; viewers: number; at: number; until: number } | null;
   comboWindow: { role: Role; userId: string; at: number }[];
+  expedition: ExpeditionState | null;
   director: DirectorCandidate | null;
   directive: DirectiveRuntime | null;
 };
-export type MissionView = Omit<MissionState, 'players' | 'comboWindow' | 'directive'> & {
+export type MissionView = Omit<
+  MissionState,
+  'players' | 'comboWindow' | 'directive' | 'expedition'
+> & {
+  expedition: ExpeditionView | null;
   directive: (Omit<DirectiveRuntime, 'contributors'> & { contributors: number }) | null;
   crewCount: number;
   crew: (Player & { id: string })[];

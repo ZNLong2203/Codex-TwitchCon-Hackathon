@@ -2,6 +2,7 @@
 
 - [Quick start and project overview](../README.md)
 - [Research, event requirements, and existing winners](research.md)
+- [Three-act expedition, route votes and visual consequences](expedition.md)
 - [AI director, Gemini setup and cost controls](ai-setup.md)
 - [Verified live Gemini generation and rehearsal gameplay](live-ai-verification.md)
 - [Twitch application and OBS setup](twitch-setup.md)

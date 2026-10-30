@@ -97,3 +97,30 @@ test('overlay is read-only and a fresh URL is required after server restart', as
     401,
   );
 });
+
+test('operator expedition flow exposes route targets, rejects paused close, and exports private-ID-free counts', async () => {
+  const state = await (await request('/api/state')).json();
+  await request('/api/settings', {
+    settings: { ...state.mission.settings, mode: 'expedition', crewPerAct: 2 },
+    source: 'rehearsal',
+  });
+  await request('/api/control', { action: 'start' });
+  await request('/api/rehearsal', { action: 'crew' });
+  await request('/api/rehearsal', { action: 'crew' });
+  const voted = await (await request('/api/rehearsal', { action: 'route', route: 'drift' })).json();
+  assert.equal(voted.mission.expedition.phase, 'choice');
+  assert.deepEqual(voted.mission.expedition.votes, { beacon: 0, drift: 1 });
+  await request('/api/control', { action: 'pause' });
+  assert.equal((await request('/api/control', { action: 'lock-route' })).status, 409);
+  await request('/api/control', { action: 'resume' });
+  const locked = await (await request('/api/control', { action: 'lock-route' })).json();
+  assert.deepEqual(locked.mission.expedition.targets, { scout: 2, engineer: 2, pilot: 3 });
+  for (let i = 0; i < 5; i++) await request('/api/rehearsal', { action: 'crew' });
+  const recorder = await (await request('/api/recorder')).json();
+  assert.equal(recorder.status, 'complete');
+  assert.equal(recorder.expedition.route, 'drift');
+  assert.equal(recorder.expedition.contributors.pilot, 3);
+  assert.equal(JSON.stringify(recorder).includes('u:'), false);
+  assert.equal(recorder.integration.acceptedCommands, 0);
+  assert.match(recorder.integration.obsCompositing, /human verification/);
+});

@@ -8,6 +8,7 @@ let providerCalls = 0;
 const service = createApplication({
   port: 4317,
   persist: false,
+  initialMode: 'classic',
   director: {
     fetch: async () => {
       providerCalls++;

@@ -1,3 +1,10 @@
+import {
+  createExpedition,
+  expeditionStateSchema,
+  expeditionView,
+  chooseRoute,
+} from './expedition.js';
+import { expeditionTargets, expeditionHint, defaultExpedition } from '../shared/expedition.js';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { DirectorCandidate } from '../shared/director.js';
@@ -16,6 +23,8 @@ import {
 export * from '../shared/contracts.js';
 
 export const settingsSchema = z.object({
+  mode: z.enum(['classic', 'expedition']).optional().default('classic'),
+  crewPerAct: z.number().int().min(2).max(5).optional().default(3),
   missionId: z.enum(['quiet-signal', 'last-garden', 'homeward']),
   goal: z.number().int().min(6).max(1000),
   durationMinutes: z.number().int().min(1).max(60),
@@ -28,10 +37,15 @@ export class MissionEngine {
   private seen = new Map<string, number>();
   private lastSweep = 0;
   private lastTick: number;
-  constructor(private clock: () => number = Date.now) {
+  constructor(
+    private clock: () => number = Date.now,
+    mode: 'classic' | 'expedition' = 'classic',
+  ) {
     this.lastTick = clock();
     this.state = this.fresh(
       {
+        mode,
+        crewPerAct: 3,
         missionId: 'quiet-signal',
         goal: 24,
         durationMinutes: 8,
@@ -58,6 +72,10 @@ export class MissionEngine {
       welcomed: 0,
       raid: null,
       comboWindow: [],
+      expedition:
+        settings.mode === 'expedition'
+          ? createExpedition(defaultExpedition(settings.missionId))
+          : null,
       director: null,
       directive: null,
     };
@@ -114,6 +132,7 @@ export class MissionEngine {
         actions: z.number(),
         combos: z.number(),
         welcomed: z.number(),
+        expedition: expeditionStateSchema.nullable().optional().default(null),
         director: directorCandidateSchema.nullable().optional().default(null),
         directive: directiveRuntimeSchema.nullable().optional().default(null),
         raid: z
@@ -121,6 +140,27 @@ export class MissionEngine {
           .nullable(),
       })
       .parse(raw);
+    if ((checked.settings.mode === 'expedition') !== !!checked.expedition)
+      throw new Error('Invalid expedition snapshot.');
+    if (checked.expedition) {
+      const e = checked.expedition;
+      const targets = expeditionTargets(checked.settings.crewPerAct ?? 3, e.route);
+      const index = ['scout', 'choice', 'engineer', 'pilot', 'complete'].indexOf(e.phase);
+      if (index >= 2 !== !!e.route || (e.phase === 'complete') !== (checked.status === 'complete'))
+        throw new Error('Invalid expedition phase.');
+      for (const [i, role] of roles.entries()) {
+        const completed = index > [0, 2, 3][i]!;
+        if (index < [0, 2, 3][i]! && e.contributors[role].length)
+          throw new Error('Locked act already has contributions.');
+        if (
+          new Set(e.contributors[role]).size !== e.contributors[role].length ||
+          e.contributors[role].length > targets[role] ||
+          (completed && e.contributors[role].length !== targets[role])
+        )
+          throw new Error('Invalid expedition contributors.');
+      }
+    }
+
     this.state = { ...checked, comboWindow: [] };
     if (this.state.status === 'active') this.state.status = 'paused';
     this.lastTick = this.clock();
@@ -147,6 +187,13 @@ export class MissionEngine {
     const now = this.clock();
     if (this.state.status === 'active') {
       const elapsed = Math.max(0, now - this.lastTick);
+      if (this.state.expedition?.phase === 'choice') {
+        this.state.expedition.ballotMs = Math.max(
+          0,
+          this.state.expedition.ballotMs - Math.min(elapsed, this.state.remainingMs),
+        );
+        if (!this.state.expedition.ballotMs && elapsed < this.state.remainingMs) this.lockRoute();
+      }
       if (this.state.directive?.status === 'active') {
         this.state.directive.remainingMs = Math.max(0, this.state.directive.remainingMs - elapsed);
         if (!this.state.directive.remainingMs) {
@@ -181,10 +228,17 @@ export class MissionEngine {
     if (this.seen.size > 10_000) this.seen.delete(this.seen.keys().next().value!);
     return false;
   }
-  chat(event: { id: string; userId: string; name: string; text: string }) {
+  chat(event: { id: string; userId: string; name: string; text: string }): {
+    accepted: boolean;
+    reason?: string;
+    role?: Role;
+    points?: number;
+    first?: boolean;
+  } {
     this.tick();
     if (this.state.status !== 'active') return { accepted: false, reason: 'inactive' };
     const command = event.text.trim().toLowerCase();
+    if (this.state.expedition) return this.expeditionChat(event, command);
     const role = roles.find((r) => roleInfo[r].command === command);
     if (!role) return { accepted: false, reason: 'unknown-command' };
     if (this.duplicate(event.id)) return { accepted: false, reason: 'duplicate' };
@@ -262,6 +316,82 @@ export class MissionEngine {
     }
     return { accepted: true, role, points, first };
   }
+  lockRoute() {
+    const e = this.state.expedition;
+    if (this.state.status !== 'active' || e?.phase !== 'choice') return false;
+    const route = chooseRoute(e, this.clock());
+    this.log(
+      'system',
+      'Route locked',
+      `${e.script.routes[route].name}. Engineers, your turn: !repair.`,
+    );
+    return true;
+  }
+  private expeditionChat(
+    event: { id: string; userId: string; name: string; text: string },
+    command: string,
+  ) {
+    const e = this.state.expedition!;
+    const key = `u:${event.userId}`;
+    const vote = /^!route (beacon|drift)$/.exec(command);
+    if (vote) {
+      if (e.phase !== 'choice') return { accepted: false, reason: 'ballot-closed' };
+      if (this.duplicate(event.id)) return { accepted: false, reason: 'duplicate' };
+      if (!e.votes[key] && Object.keys(e.votes).length >= 10000)
+        return { accepted: false, reason: 'vote-capacity' };
+      e.votes[key] = vote[1] as 'beacon' | 'drift';
+      return { accepted: true, reason: 'vote' };
+    }
+    const role = roles.find((r) => roleInfo[r].command === command);
+    if (!role) return { accepted: false, reason: 'unknown-command' };
+    if (role !== e.phase) return { accepted: false, reason: 'role-locked' };
+    if (this.duplicate(event.id)) return { accepted: false, reason: 'duplicate' };
+    if (e.contributors[role].includes(key))
+      return { accepted: false, reason: 'already-contributed' };
+    const now = this.clock();
+    const existing = this.state.players[key];
+    if (existing && now - existing.lastAt < this.state.settings.cooldownSeconds * 1000)
+      return { accepted: false, reason: 'cooldown' };
+    if (!existing && Object.keys(this.state.players).length >= 10000)
+      return { accepted: false, reason: 'crew-capacity' };
+    const first = !existing;
+    this.state.players[key] = {
+      name: event.name.slice(0, 25),
+      role,
+      actions: (existing?.actions ?? 0) + 1,
+      firstAt: existing?.firstAt ?? now,
+      lastAt: now,
+    };
+    e.contributors[role].push(key);
+    e.lastSignal = { id: event.id, role };
+    const target = expeditionTargets(this.state.settings.crewPerAct ?? 3, e.route)[role];
+    this.state.systems[role] = Math.round(
+      (e.contributors[role].length / target) * this.state.settings.goal,
+    );
+    this.state.actions++;
+    if (first && this.state.raid && now < this.state.raid.until) this.state.welcomed++;
+    this.log(
+      'action',
+      event.name.slice(0, 25),
+      `${roleInfo[role].verb} · ${e.contributors[role].length}/${target} different crew`,
+      { role, first },
+    );
+    if (e.contributors[role].length >= target) {
+      e.phase = role === 'scout' ? 'choice' : role === 'engineer' ? 'pilot' : 'complete';
+      e.milestones.push({ phase: e.phase, at: now });
+      this.log(
+        'system',
+        'Act complete',
+        e.phase === 'choice'
+          ? 'Signal found. Vote !route beacon or !route drift. Ballot closes in 20 seconds.'
+          : e.phase === 'pilot'
+            ? 'Lifeline restored. Pilots, extract the ark with !boost.'
+            : e.script.routes[e.route!].ending,
+      );
+      if (e.phase === 'complete') this.state.status = 'complete';
+    }
+    return { accepted: true, role, points: 1, first };
+  }
   raid(event: { id: string; name: string; viewers: number }) {
     this.tick();
     if (this.state.status !== 'active' || this.duplicate(event.id)) return false;
@@ -289,6 +419,23 @@ export class MissionEngine {
       throw new Error('Load a new flight before approving a director draft.');
     if (candidate.source === 'sample' && this.state.source !== 'rehearsal')
       throw new Error('Sample directives cannot be published to Twitch missions.');
+    if (this.state.expedition) {
+      if (this.state.status !== 'ready')
+        throw new Error(
+          'Review the three-act script before launch. Load a new flight to change it.',
+        );
+      if (!candidate.brief.expedition)
+        throw new Error('This draft is missing its three-act rescue script.');
+      this.state.expedition = createExpedition(candidate.brief.expedition);
+      this.state.director = candidate;
+      this.state.directive = null;
+      this.log(
+        'director',
+        candidate.source === 'gemini' ? 'AI expedition · approved' : 'Sample expedition · approved',
+        candidate.brief.title,
+      );
+      return;
+    }
     if (this.state.directive && ['queued', 'active'].includes(this.state.directive.status))
       throw new Error('Finish or let the current directive expire before publishing another.');
     this.tick();
@@ -307,7 +454,13 @@ export class MissionEngine {
     );
   }
   view(): MissionView {
-    const { players, comboWindow: _, directive, ...rest } = this.state;
+    const {
+      players,
+      comboWindow: _,
+      directive,
+      expedition: privateExpedition,
+      ...rest
+    } = this.state;
     const values = Object.entries(players);
     const roleCounts = { scout: 0, engineer: 0, pilot: 0 };
     for (const [, p] of values) roleCounts[p.role]++;
@@ -321,17 +474,27 @@ export class MissionEngine {
           : rest.status === 'paused'
             ? `${mission.name}: the captain has paused this rescue. Contributions resume when the mission does.`
             : `${mission.name}: ${mission.description} Fill all three systems to complete the rescue. ${roleInfo[weakest].system} needs you most — type ${roleInfo[weakest].command} in chat. A scout, engineer and pilot acting within 15 seconds creates a relay bonus.`;
+    const expedition = privateExpedition
+      ? expeditionView(privateExpedition, rest.settings.crewPerAct ?? 3)
+      : null;
     return {
       ...rest,
+      expedition,
       directive: directive ? { ...directive, contributors: directive.contributors.length } : null,
       crewCount: values.length,
       crew: values.slice(-80).map(([id, p]) => ({ id, ...p })),
       roleCounts,
       progress: Math.floor(
-        (roles.reduce((n, r) => n + rest.systems[r], 0) / (rest.settings.goal * 3)) * 100,
+        expedition
+          ? (roles.reduce((n, r) => n + expedition.contributors[r] / expedition.targets[r], 0) /
+              3) *
+              100
+          : (roles.reduce((n, r) => n + rest.systems[r], 0) / (rest.settings.goal * 3)) * 100,
       ),
       relay: this.state.comboWindow.filter((a) => this.clock() - a.at <= 15_000).map((a) => a.role),
-      catchup,
+      catchup: expedition
+        ? `${rest.status === 'paused' ? 'Mission paused. ' : rest.status === 'ended' ? 'Rescue window closed. ' : ''}${expeditionHint(expedition)}`
+        : catchup,
     };
   }
 }

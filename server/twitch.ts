@@ -9,6 +9,10 @@ export type Connection = {
   subscriptions: number;
   apiCalls: number;
   received: number;
+  acceptedCommands: number;
+  incomingRaids: number;
+  lastAcceptedAt: number | null;
+  recoveries: number;
 };
 const validationSchema = z.object({
   client_id: z.string(),
@@ -99,6 +103,10 @@ export class TwitchBridge {
     subscriptions: 0,
     apiCalls: 0,
     received: 0,
+    acceptedCommands: 0,
+    incomingRaids: 0,
+    lastAcceptedAt: null,
+    recoveries: 0,
   };
   private socket?: WebSocket;
   private candidate?: WebSocket;
@@ -149,6 +157,10 @@ export class TwitchBridge {
       subscriptions: 0,
       apiCalls: 0,
       received: 0,
+      acceptedCommands: 0,
+      incomingRaids: 0,
+      lastAcceptedAt: null,
+      recoveries: 0,
     });
     try {
       const identity = await this.validate();
@@ -200,6 +212,7 @@ export class TwitchBridge {
           this.candidate = undefined;
           old?.close();
           this.retries = 0;
+          this.connection.recoveries++;
           this.update({
             status: 'live',
             message: 'EventSub session migrated · subscriptions preserved',
@@ -223,8 +236,14 @@ export class TwitchBridge {
         this.fail(new Error('Twitch revoked an EventSub subscription. Reconnect your account.'));
       } else if (metadata.message_type === 'notification') {
         this.connection.received++;
-        if (this.engine.state.source === 'twitch')
-          ingestNotification(this.engine, parsed.data, this.userId);
+        if (
+          this.engine.state.source === 'twitch' &&
+          ingestNotification(this.engine, parsed.data, this.userId)
+        ) {
+          if (payload.subscription?.type === 'channel.raid') this.connection.incomingRaids++;
+          else this.connection.acceptedCommands++;
+          this.connection.lastAcceptedAt = Date.now();
+        }
         this.changed();
       }
     });
@@ -286,6 +305,7 @@ export class TwitchBridge {
       count++;
     }
     if (generation !== this.generation) return;
+    if (this.retries > 0) this.connection.recoveries++;
     this.retries = 0;
     this.update({
       status: 'live',

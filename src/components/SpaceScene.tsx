@@ -5,13 +5,24 @@ export function SpaceScene({ mission, now }: { mission: MissionView; now: number
   const missionIndex = missions.findIndex((m) => m.id === mission.settings.missionId);
   const board = mission.status === 'active' && mission.raid && now < mission.raid.until;
   const complete = mission.status === 'complete';
+  const e = mission.expedition;
+  const scanned = e ? e.contributors.scout / e.targets.scout : 1;
+  const repaired = e ? e.contributors.engineer / e.targets.engineer : 0;
+  const flight = e ? e.contributors.pilot / e.targets.pilot : complete ? 1 : 0;
+  const shipX = 284 + flight * 370;
+  const shipY = 336 - flight * (e?.route === 'drift' ? 45 : 155);
+
   return (
     <div className={`space-scene ${complete ? 'rescued' : ''} scene-${missionIndex}`}>
       <svg
         className="space-art"
         viewBox="0 0 900 500"
         role="img"
-        aria-label="A rescue ship approaches an orbital relay station. Three crew systems power the rescue."
+        aria-label={
+          e
+            ? `Rescue scene. Signal ${Math.round(scanned * 100)} percent revealed. Lifeline ${Math.round(repaired * 100)} percent restored. Extraction ${Math.round(flight * 100)} percent complete. ${e.route ? `Route: ${e.script.routes[e.route].name}.` : 'Route not chosen yet.'}`
+            : 'A rescue ship approaches an orbital relay station.'
+        }
       >
         <defs>
           <radialGradient id="spaceGlow">
@@ -134,6 +145,52 @@ export function SpaceScene({ mission, now }: { mission: MissionView; now: number
           strokeDasharray={complete ? undefined : '5 8'}
           className="signal-path"
         />
+        {e && (
+          <g className="expedition-effects" fill="none">
+            {e.phase === 'scout' && (
+              <ellipse
+                className="scanner-wave"
+                cx="443"
+                cy="225"
+                rx="120"
+                ry="70"
+                stroke="#b6a0ff"
+                strokeWidth="2"
+              />
+            )}
+            <ellipse
+              className="station-shield"
+              cx="443"
+              cy="225"
+              rx="155"
+              ry="105"
+              stroke="#f5bc75"
+              strokeWidth={2 + repaired * 4}
+              opacity={repaired * 0.75}
+              strokeDasharray={repaired === 1 ? undefined : '8 12'}
+            />
+            <path
+              className="scene-route"
+              d={e.route === 'drift' ? 'M284 336 Q450 420 654 291' : 'M284 336 Q330 130 654 181'}
+              stroke="#bff56b"
+              strokeWidth="3"
+              strokeDasharray="6 10"
+              opacity={e.route ? 0.55 : 0}
+            />
+            {e.lastSignal && (
+              <ellipse
+                key={e.lastSignal.id}
+                className="signal-ripple"
+                cx="443"
+                cy="225"
+                rx="125"
+                ry="80"
+                stroke={roleInfo[e.lastSignal.role].color}
+                strokeWidth="4"
+              />
+            )}
+          </g>
+        )}
         <g className="station-float" transform="translate(443 225)">
           <ellipse cy="101" rx="125" ry="28" fill="#020908" opacity=".3" />
           <g transform="rotate(-13)">
@@ -165,16 +222,38 @@ export function SpaceScene({ mission, now }: { mission: MissionView; now: number
             />
           </g>
         </g>
-        <g className="ship-float">
-          <g transform="translate(284 336) rotate(-27)">
-            <path d="m-25 0-31-7v14z" fill="#c3f66b" opacity=".18" filter="url(#glow)" />
-            <path d="m-23 0-26-4v8z" fill="#c3f66b" />
-            <path d="m-20-7 29-8 28 15-28 15-29-8z" fill="url(#shipTop)" />
-            <path d="m9 2 28-2-28 15-29-8v-5z" fill="#53685b" />
-            <path d="m-1-8 15 3 8 5-18 1z" fill="#263f36" />
-            <path d="m-9-4-19-16 8 19m11 5-19 16 8-19" fill="#b4bdae" />
-            <circle cx="-18" r="2" fill="#d8ffa5" />
+        {e && (
+          <ellipse
+            className="signal-fog"
+            cx="443"
+            cy="225"
+            rx="150"
+            ry="105"
+            fill="#131b21"
+            opacity={(1 - scanned) * 0.9}
+          />
+        )}
+        <g
+          className="rescue-ship-position"
+          style={{ transform: `translate(${shipX - 284}px, ${shipY - 336}px)` }}
+        >
+          <g className="ship-float">
+            <g transform="translate(284 336) rotate(-27)">
+              <path d="m-25 0-31-7v14z" fill="#c3f66b" opacity=".18" filter="url(#glow)" />
+              <path d="m-23 0-26-4v8z" fill="#c3f66b" />
+              <path d="m-20-7 29-8 28 15-28 15-29-8z" fill="url(#shipTop)" />
+              <path d="m9 2 28-2-28 15-29-8v-5z" fill="#53685b" />
+              <path d="m-1-8 15 3 8 5-18 1z" fill="#263f36" />
+              <path d="m-9-4-19-16 8 19m11 5-19 16 8-19" fill="#b4bdae" />
+              <circle cx="-18" r="2" fill="#d8ffa5" />
+            </g>
           </g>
+          {e && repaired === 1 && (
+            <g transform="translate(245 357)">
+              <path d="M0 0l25-15" stroke="#f5bc75" strokeWidth="2" />
+              <path d="m-20 0 16-10 16 10-16 10z" fill="#bff56b" stroke="#e2ffc8" />
+            </g>
+          )}
         </g>
         {mission.crew.slice(-16).map((p, i) => {
           const angle = (i / 16) * Math.PI * 2 - 0.5;
@@ -223,9 +302,19 @@ export function SpaceScene({ mission, now }: { mission: MissionView; now: number
         <span className={`status-dot ${mission.status === 'active' ? 'pulse' : ''}`} />
         {complete
           ? 'SIGNAL DELIVERED'
-          : board
-            ? 'INCOMING CREW DETECTED'
-            : 'ORBITAL LINK ESTABLISHED'}
+          : mission.status === 'ready'
+            ? 'AWAITING LAUNCH'
+            : mission.status === 'paused'
+              ? 'RESCUE PAUSED'
+              : mission.status === 'ended'
+                ? 'RESCUE WINDOW CLOSED'
+                : board
+                  ? 'INCOMING CREW DETECTED'
+                  : e
+                    ? e.phase === 'choice'
+                      ? 'COMMUNITY ROUTE VOTE'
+                      : `${e.phase.toUpperCase()} CREW · YOUR TURN`
+                    : 'ORBITAL LINK ESTABLISHED'}
       </div>
       <div className="scene-bottom">
         <span>
@@ -243,7 +332,11 @@ export function SpaceScene({ mission, now }: { mission: MissionView; now: number
             <br />
             An entire community.
           </h2>
-          <p>{mission.crewCount} crew members brought them home.</p>
+          <p>
+            {e
+              ? e.script.routes[e.route ?? 'beacon'].ending
+              : `${mission.crewCount} crew members brought them home.`}
+          </p>
         </div>
       )}
     </div>

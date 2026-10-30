@@ -1,3 +1,4 @@
+import { expeditionTargets, routes } from '../../shared/expedition';
 import { useState } from 'react';
 import {
   ArrowRight,
@@ -49,6 +50,7 @@ export function AIDirectorPanel({
   const candidate = ai.pending;
   const cool = Math.max(0, Math.ceil((ai.nextCallAt - now) / 1000));
   const ended = ['ended', 'complete'].includes(mission.status);
+  const scriptLocked = !!mission.expedition && mission.status !== 'ready';
   const directiveRunning =
     mission.directive && ['queued', 'active'].includes(mission.directive.status);
   return (
@@ -117,7 +119,14 @@ export function AIDirectorPanel({
             </div>
             <button
               className="button primary ai-generate"
-              disabled={loading || ended || !ai.configured || cool > 0 || theme.trim().length < 3}
+              disabled={
+                loading ||
+                ended ||
+                scriptLocked ||
+                !ai.configured ||
+                cool > 0 ||
+                theme.trim().length < 3
+              }
               onClick={() => onAction('ai/generate', { theme, language })}
             >
               {loading ? <LoaderCircle size={17} className="spin" /> : <Sparkles size={17} />}{' '}
@@ -128,6 +137,12 @@ export function AIDirectorPanel({
                   : 'Generate AI mission'}
             </button>
           </div>
+          {scriptLocked && (
+            <p className="ai-hint">
+              The three-act script is locked for this flight. Load a new flight to direct the next
+              story.
+            </p>
+          )}
           {!ai.configured && (
             <div className="ai-setup-line">
               <KeyRound size={16} />
@@ -195,24 +210,54 @@ export function AIDirectorPanel({
                     </p>
                   </details>
                 </div>
-                <div className="ai-objective-preview">
-                  <span className="eyebrow">A PLAYABLE CREW OBJECTIVE</span>
-                  <h3>{candidate.brief.directive.title}</h3>
-                  <p>{candidate.brief.directive.objective}</p>
-                  <div className="ai-objective-specs">
-                    <span>
-                      <Users size={15} />
-                      {candidate.brief.directive.targetContributors} different people
-                    </span>
-                    <code style={{ color: roleInfo[candidate.brief.directive.focusRole].color }}>
-                      {roleInfo[candidate.brief.directive.focusRole].command}
-                    </code>
-                    <span>{candidate.brief.directive.durationSeconds}s</span>
-                    <span>
-                      <Zap size={14} />+{candidate.brief.directive.rewardPoints} / system
-                    </span>
+                {mission.expedition && candidate.brief.expedition ? (
+                  <div className="ai-objective-preview">
+                    <span className="eyebrow">A COMPLETE THREE-ACT RESCUE</span>
+                    {(['scout', 'engineer', 'pilot'] as const).map((role, i) => (
+                      <div className="ai-script-act" key={role}>
+                        <strong>
+                          {i + 1}. {candidate.brief.expedition!.acts[role].title}
+                        </strong>
+                        <p>{candidate.brief.expedition!.acts[role].objective}</p>
+                        <code>{roleInfo[role].command}</code>
+                      </div>
+                    ))}
+                    {routes.map((route) => {
+                      const targets = expeditionTargets(mission.settings.crewPerAct ?? 3, route);
+                      const story = candidate.brief.expedition!.routes[route];
+                      return (
+                        <details key={route}>
+                          <summary>
+                            {story.name} · {targets.engineer} engineers → {targets.pilot} pilots
+                          </summary>
+                          <p>{story.description}</p>
+                          <p>
+                            <strong>If rescued:</strong> {story.ending}
+                          </p>
+                        </details>
+                      );
+                    })}
                   </div>
-                </div>
+                ) : (
+                  <div className="ai-objective-preview">
+                    <span className="eyebrow">A PLAYABLE CREW OBJECTIVE</span>
+                    <h3>{candidate.brief.directive.title}</h3>
+                    <p>{candidate.brief.directive.objective}</p>
+                    <div className="ai-objective-specs">
+                      <span>
+                        <Users size={15} />
+                        {candidate.brief.directive.targetContributors} different people
+                      </span>
+                      <code style={{ color: roleInfo[candidate.brief.directive.focusRole].color }}>
+                        {roleInfo[candidate.brief.directive.focusRole].command}
+                      </code>
+                      <span>{candidate.brief.directive.durationSeconds}s</span>
+                      <span>
+                        <Zap size={14} />+{candidate.brief.directive.rewardPoints} / system
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="ai-draft-actions">
                 <span>
@@ -220,10 +265,11 @@ export function AIDirectorPanel({
                 </span>
                 <button
                   className="button primary"
-                  disabled={loading || !!directiveRunning || ended}
+                  disabled={loading || !!directiveRunning || ended || scriptLocked}
                   onClick={() => onAction('ai/approve', { draftId: candidate.id })}
                 >
-                  <Check size={17} /> Publish mission & objective
+                  <Check size={17} />{' '}
+                  {mission.expedition ? 'Publish three-act mission' : 'Publish mission & objective'}
                 </button>
               </div>
               {directiveRunning && (
@@ -254,7 +300,7 @@ export function AIDirectorPanel({
             {mission.source === 'rehearsal' && (
               <button
                 className="text-button sample-button"
-                disabled={loading || ended}
+                disabled={loading || ended || scriptLocked}
                 onClick={() => onAction('ai/sample', {})}
               >
                 <FlaskConical size={14} /> Try a labeled local sample
@@ -308,8 +354,8 @@ export function AISettings({
       <span className="eyebrow">YOUR COMMUNITY’S STORYTELLER</span>
       <h2>Connect Gemini.</h2>
       <p>
-        Generate an original mission, then review its crew objective before publishing it to your
-        stream.
+        Generate an original mission, then review its three acts and two routes before publishing it
+        to your stream.
       </p>
       <div className="connection-status">
         <KeyRound size={19} />
@@ -425,7 +471,7 @@ export function AISettings({
         <label className="checkbox-label">
           <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />
           <span>
-            <strong>Draft a new mission beat when a raid arrives</strong>
+            <strong>Draft a new mission beat on raids · classic mode</strong>
             <small>
               Uses one bounded Gemini request when limits allow. It remains a draft until you
               approve it.

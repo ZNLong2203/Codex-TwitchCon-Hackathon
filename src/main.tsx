@@ -1,3 +1,5 @@
+import { ExpeditionPanel } from './components/ExpeditionPanel';
+import './expedition.css';
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
@@ -60,6 +62,7 @@ type State = {
   mission: MissionView;
   connection: Connection;
   demoRunning: boolean;
+  diagnostics?: { overlayClients: number };
   now: number;
   ai: DirectorView;
 };
@@ -298,7 +301,12 @@ function App() {
   const board = m.status === 'active' && m.raid && now < m.raid.until;
   const running = m.status === 'active';
   const locked = running || m.status === 'paused';
-  const neededRole = roles.reduce((a, b) => (m.systems[a] <= m.systems[b] ? a : b));
+  const neededRole =
+    m.expedition && roles.includes(m.expedition.phase as Role)
+      ? (m.expedition.phase as Role)
+      : roles.reduce((a, b) => (m.systems[a] <= m.systems[b] ? a : b));
+  const count = (r: Role) => m.expedition?.contributors[r] ?? m.systems[r];
+  const target = (r: Role) => m.expedition?.targets[r] ?? m.settings.goal;
   const rehearsal = m.source === 'rehearsal';
   const overlayUrl = config.overlayUrl + (compact ? '&layout=compact' : '');
   if (overlay)
@@ -336,20 +344,23 @@ function App() {
                     : board
                       ? (m.director?.brief.welcome ??
                         `Welcome, ${m.raid!.name}'s community. Pick a role and join the rescue.`)
-                      : 'Three roles. One rescue. Type a command in chat.'}
+                      : m.expedition
+                        ? 'Your chat writes the route. Your crew makes it real.'
+                        : 'Three roles. One rescue. Type a command in chat.'}
               </p>
+              <ExpeditionPanel mission={m} />
               <ActiveDirective mission={m} />
               {roles.map((r) => (
                 <div className="obs-role" key={r}>
                   <span style={{ color: roleInfo[r].color }}>{roleInfo[r].name}</span>
                   <code>{roleInfo[r].command}</code>
                   <span>
-                    {m.systems[r]}/{m.settings.goal}
+                    {count(r)}/{target(r)}
                   </span>
                   <div className="meter">
                     <i
                       style={{
-                        width: `${(m.systems[r] / m.settings.goal) * 100}%`,
+                        width: `${(count(r) / target(r)) * 100}%`,
                         background: roleInfo[r].color,
                       }}
                     />
@@ -357,15 +368,20 @@ function App() {
                 </div>
               ))}
               <small>
-                {m.crewCount} crew · {m.combos} relays · different people + all 3 roles in 15s =
-                bonus
+                {m.crewCount} crew ·{' '}
+                {m.expedition
+                  ? 'Three acts. Each person counts once per act.'
+                  : `${m.combos} relays · 3 people + 3 roles in 15s = bonus`}
               </small>
             </div>
           </div>
           {board && (
             <div className="obs-welcome">
-              <Radio size={15} /> BOARDING OPEN · First action this mission gets{' '}
-              {m.settings.welcomeBonus ? '+2' : '+1'} · {Math.ceil((m.raid!.until - now) / 1000)}s
+              <Radio size={15} /> BOARDING OPEN ·{' '}
+              {m.expedition
+                ? 'Join the current act'
+                : `First mission action ${m.settings.welcomeBonus ? '+2' : '+1'}`}{' '}
+              · {Math.ceil((m.raid!.until - now) / 1000)}s
             </div>
           )}
         </div>
@@ -601,6 +617,7 @@ function App() {
                       <p>{m.director.brief.briefing}</p>
                     </div>
                   )}
+                  <ExpeditionPanel mission={m} busy={busy} operator onAction={act} />
                   <ActiveDirective mission={m} />
                   <div className="mission-transport">
                     <div className="transport-label">
@@ -676,7 +693,7 @@ function App() {
                           </div>
                           <div className="role-progress">
                             <strong>
-                              {Math.floor((m.systems[r] / m.settings.goal) * 100)}
+                              {Math.floor((count(r) / target(r)) * 100)}
                               <small>%</small>
                             </strong>
                             <code>{roleInfo[r].command}</code>
@@ -684,7 +701,7 @@ function App() {
                           <div className="meter">
                             <i
                               style={{
-                                width: `${(m.systems[r] / m.settings.goal) * 100}%`,
+                                width: `${(count(r) / target(r)) * 100}%`,
                                 background: roleInfo[r].color,
                               }}
                             />
@@ -692,7 +709,8 @@ function App() {
                           <div className="role-foot">
                             <span>{roleInfo[r].name.toUpperCase()}</span>
                             <span>
-                              {m.systems[r]} / {m.settings.goal}
+                              {count(r)} / {target(r)}
+                              {m.expedition ? ' people' : ''}
                             </span>
                           </div>
                         </div>
@@ -714,8 +732,12 @@ function App() {
                         <span>on the crew</span>
                       </div>
                       <div>
-                        <strong className="lime-text">{m.combos}</strong>
-                        <span>relay combos</span>
+                        <strong className="lime-text">
+                          {m.expedition
+                            ? m.expedition.milestones.filter((x) => x.phase !== 'engineer').length
+                            : m.combos}
+                        </strong>
+                        <span>{m.expedition ? 'acts cleared' : 'relay combos'}</span>
                       </div>
                     </div>
                     <div className="crew-list">
@@ -785,20 +807,32 @@ function App() {
                     <div className="boarding-instruction">
                       <span>
                         {board
-                          ? `FIRST ACTION ${m.settings.welcomeBonus ? '×2' : '+1'} · ${Math.ceil((m.raid!.until - now) / 1000)}s LEFT`
+                          ? `${m.expedition ? 'JOIN THE CURRENT ACT' : `FIRST ACTION ${m.settings.welcomeBonus ? '×2' : '+1'}`} · ${Math.ceil((m.raid!.until - now) / 1000)}s LEFT`
                           : 'JOIN IN ONE MESSAGE'}
                       </span>
                       <strong>
-                        {board
-                          ? `${m.progress}% complete. ${roleInfo[neededRole].system} needs you most.`
-                          : 'Pick a role. Type a command.'}
+                        {m.expedition
+                          ? m.catchup
+                          : board
+                            ? `${m.progress}% complete. ${roleInfo[neededRole].system} needs you most.`
+                            : 'Pick a role. Type a command.'}
                       </strong>
                       <div>
-                        {roles.map((r) => (
-                          <code key={r} style={{ color: roleInfo[r].color }}>
-                            {roleInfo[r].command}
-                          </code>
-                        ))}
+                        {m.expedition?.phase === 'choice' ? (
+                          <>
+                            <code>!route beacon</code>
+                            <code>!route drift</code>
+                          </>
+                        ) : (
+                          (m.expedition
+                            ? roles.filter((r) => r === m.expedition!.phase)
+                            : roles
+                          ).map((r) => (
+                            <code key={r} style={{ color: roleInfo[r].color }}>
+                              {roleInfo[r].command}
+                            </code>
+                          ))
+                        )}
                       </div>
                     </div>
                     <div className="boarding-footer">
@@ -885,7 +919,7 @@ function App() {
                       <div className="simulation-buttons">
                         <button
                           className="button secondary"
-                          disabled={!running || busy}
+                          disabled={!running || busy || m.expedition?.phase === 'choice'}
                           onClick={() => act('rehearsal', { action: 'crew' })}
                         >
                           <Plus size={14} /> Add crew
@@ -925,31 +959,80 @@ function App() {
                         <span>
                           EventSub notifications <b>{connection.received}</b>
                         </span>
+                        <span>
+                          Accepted chat commands / votes <b>{connection.acceptedCommands}</b>
+                        </span>
+                        <span>
+                          Accepted incoming raids <b>{connection.incomingRaids}</b>
+                        </span>
+                        <span>
+                          Recovered sessions <b>{connection.recoveries}</b>
+                        </span>
+                        <span>
+                          Overlay connections <b>{state.diagnostics?.overlayClients ?? 0}</b>
+                        </span>
                       </div>
-                      <p className="muted-note">Read-only integration. No messages sent to chat.</p>
+                      <p className="muted-note">
+                        Counts are real events accepted since Twitch connected. Check the overlay
+                        composition directly in OBS; an open browser tab also counts as an overlay
+                        connection.
+                      </p>
                     </>
                   )}
                 </section>
               </div>
               <div className="insight-strip">
                 <span>
-                  <Zap size={14} /> Live relay
+                  <Zap size={14} /> {m.expedition ? 'Crew handoff' : 'Live relay'}
                 </span>
                 <div className="relay-chain">
                   {roles.map((r) => (
                     <span
                       key={r}
-                      className={m.relay.includes(r) ? 'filled' : ''}
-                      style={{ color: m.relay.includes(r) ? roleInfo[r].color : undefined }}
+                      className={
+                        (
+                          m.expedition
+                            ? m.expedition.contributors[r] >= m.expedition.targets[r]
+                            : m.relay.includes(r)
+                        )
+                          ? 'filled'
+                          : ''
+                      }
+                      style={{
+                        color: (
+                          m.expedition
+                            ? m.expedition.contributors[r] >= m.expedition.targets[r]
+                            : m.relay.includes(r)
+                        )
+                          ? roleInfo[r].color
+                          : undefined,
+                      }}
                     >
-                      {m.relay.includes(r) ? <Check size={10} /> : <span className="relay-empty" />}
+                      {(
+                        m.expedition
+                          ? m.expedition.contributors[r] >= m.expedition.targets[r]
+                          : m.relay.includes(r)
+                      ) ? (
+                        <Check size={10} />
+                      ) : (
+                        <span className="relay-empty" />
+                      )}
                       {roleInfo[r].name}
                     </span>
                   ))}
                 </div>
                 <p>
-                  Three different people. Three roles. Within 15 seconds.{' '}
-                  <strong>That’s a relay: +2 to every system.</strong>
+                  {m.expedition ? (
+                    <>
+                      Discover → choose a route → stabilize → extract.{' '}
+                      <strong>Each act unlocks the next.</strong>
+                    </>
+                  ) : (
+                    <>
+                      Three different people. Three roles. Within 15 seconds.{' '}
+                      <strong>That’s a relay: +2 to every system.</strong>
+                    </>
+                  )}
                 </p>
                 <button onClick={() => setTab('guide')}>
                   How it works <ArrowUpRight size={12} />
@@ -1058,7 +1141,14 @@ function App() {
                 {[
                   [m.crewCount, 'People who contributed'],
                   [m.actions, 'Accepted crew actions'],
-                  [m.combos, 'Three-person relays'],
+                  [
+                    m.expedition
+                      ? roles.filter(
+                          (r) => m.expedition!.contributors[r] >= m.expedition!.targets[r],
+                        ).length
+                      : m.combos,
+                    m.expedition ? 'Acts completed' : 'Three-person relays',
+                  ],
                   [m.welcomed, 'Boarding-window newcomers'],
                 ].map(([n, title]) => (
                   <div className="card metric-card" key={title}>
@@ -1095,8 +1185,9 @@ function App() {
                 <span className="eyebrow">THE 60-SECOND BRIEFING</span>
                 <h2>A community, not a command spammer.</h2>
                 <p>
-                  Fill all three systems before the rescue window closes. Each chat message is a
-                  small action. Collaboration is the multiplier.
+                  Three-act expeditions unlock scouts → a community route vote → engineers → pilots.
+                  Each person counts once per act. Classic relay mode fills three systems together.
+                  Each chat message is a small action. Collaboration is the multiplier.
                 </p>
                 {roles.map((r) => {
                   const Icon = roleIcons[r];
@@ -1118,17 +1209,19 @@ function App() {
                 <div className="guide-callout">
                   <Sparkles size={20} />
                   <div>
-                    <strong>The relay moment</strong>
+                    <strong>The community decision</strong>
                     <p>
-                      Three different people use the three different commands within 15 seconds.
-                      Everyone’s system gets +2. One person cannot trigger a relay alone.
+                      In an expedition, vote !route beacon or !route drift after scouting. Beacon
+                      needs more engineers, drift needs more pilots. One vote per account, editable
+                      until the 20-second ballot closes. In classic mode, three different people and
+                      roles within 15 seconds give +2 to every system.
                     </p>
                   </div>
                 </div>
                 <p>
                   One accepted action per person every {m.settings.cooldownSeconds} seconds, across
-                  all roles. You can switch roles any time. No subscriptions, Bits, channel points
-                  or viewer installation required.
+                  all roles. In expeditions, wait for the current act to unlock your role. No
+                  subscriptions, Bits, channel points or viewer installation required.
                 </p>
               </section>
               <section className="card guide-card">
@@ -1386,21 +1479,54 @@ function App() {
                       </option>
                     ))}
                   </select>
+                  <label className="field-label" htmlFor="game-mode">
+                    Mission mode
+                  </label>
+                  <select
+                    id="game-mode"
+                    value={form.mode ?? 'classic'}
+                    onChange={(e) =>
+                      setForm({ ...form, mode: e.target.value as 'classic' | 'expedition' })
+                    }
+                  >
+                    <option value="expedition">Three-act expedition · community route vote</option>
+                    <option value="classic">Classic relay · simultaneous systems</option>
+                  </select>
                   <div className="form-row">
-                    <div>
-                      <label className="field-label" htmlFor="goal">
-                        Goal per system
-                      </label>
-                      <input
-                        id="goal"
-                        type="number"
-                        min="6"
-                        max="1000"
-                        required
-                        value={form.goal}
-                        onChange={(e) => setForm({ ...form, goal: Number(e.target.value) })}
-                      />
-                    </div>
+                    {form.mode === 'expedition' ? (
+                      <div>
+                        <label className="field-label" htmlFor="crew-per-act">
+                          People per act (base)
+                        </label>
+                        <input
+                          id="crew-per-act"
+                          type="number"
+                          min="2"
+                          max="5"
+                          required
+                          value={form.crewPerAct ?? 3}
+                          onChange={(e) => setForm({ ...form, crewPerAct: Number(e.target.value) })}
+                        />
+                        <small className="field-hint">
+                          Routes shift engineer/pilot targets by 1. Minimum 2 different people.
+                        </small>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="field-label" htmlFor="goal">
+                          Goal per system
+                        </label>
+                        <input
+                          id="goal"
+                          type="number"
+                          min="6"
+                          max="1000"
+                          required
+                          value={form.goal}
+                          onChange={(e) => setForm({ ...form, goal: Number(e.target.value) })}
+                        />
+                      </div>
+                    )}
                     <div>
                       <label className="field-label" htmlFor="duration">
                         Duration (minutes)
@@ -1433,19 +1559,21 @@ function App() {
                   <small className="field-hint">
                     Across all roles. Collaboration wins; message volume doesn’t.
                   </small>
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={form.welcomeBonus}
-                      onChange={(e) => setForm({ ...form, welcomeBonus: e.target.checked })}
-                    />
-                    <span>
-                      <strong>Welcome bonus</strong>
-                      <small>
-                        First action this mission gives +2 during the 90-second boarding window.
-                      </small>
-                    </span>
-                  </label>
+                  {form.mode !== 'expedition' && (
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={form.welcomeBonus}
+                        onChange={(e) => setForm({ ...form, welcomeBonus: e.target.checked })}
+                      />
+                      <span>
+                        <strong>Welcome bonus</strong>
+                        <small>
+                          First action this mission gives +2 during the 90-second boarding window.
+                        </small>
+                      </span>
+                    </label>
+                  )}
                   <label className="field-label" htmlFor="source">
                     Event source
                   </label>

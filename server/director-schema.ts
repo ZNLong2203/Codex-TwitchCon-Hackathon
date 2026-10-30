@@ -1,9 +1,11 @@
+import { expeditionScriptSchema } from './expedition.js';
 import { z } from 'zod';
 import { roles } from '../shared/contracts.js';
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 export const directorBriefSchema = z
   .object({
+    expedition: expeditionScriptSchema.optional(),
     title: text(64),
     location: text(64),
     briefing: text(360),
@@ -67,4 +69,50 @@ export const directorJsonSchema = {
     },
   },
   required: ['title', 'location', 'briefing', 'welcome', 'conclusion', 'directive'],
+};
+
+const narrativeAct = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    title: { type: 'string', maxLength: 64 },
+    objective: { type: 'string', maxLength: 160 },
+  },
+  required: ['title', 'objective'],
+};
+const narrativeRoute = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    name: { type: 'string', maxLength: 48 },
+    description: { type: 'string', maxLength: 160 },
+    ending: { type: 'string', maxLength: 220 },
+  },
+  required: ['name', 'description', 'ending'],
+};
+export const expeditionDirectorJsonSchema = {
+  ...directorJsonSchema,
+  properties: {
+    ...directorJsonSchema.properties,
+    expedition: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        acts: {
+          type: 'object',
+          additionalProperties: false,
+          properties: { scout: narrativeAct, engineer: narrativeAct, pilot: narrativeAct },
+          required: ['scout', 'engineer', 'pilot'],
+        },
+        routes: {
+          type: 'object',
+          additionalProperties: false,
+          properties: { beacon: narrativeRoute, drift: narrativeRoute },
+          required: ['beacon', 'drift'],
+        },
+      },
+      required: ['acts', 'routes'],
+    },
+  },
+  required: [...directorJsonSchema.required, 'expedition'],
 };
