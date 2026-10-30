@@ -12,7 +12,7 @@ npm run build
 npm audit --omit=dev --audit-level=high
 ```
 
-The 20 engine/API/adapter tests cover:
+The automated engine/API/adapter/director tests cover:
 
 - Distinct-person relay scoring, prevention of solo role switching, exact 15-second expiry and system caps/completion.
 - Cooldown boundaries, exact command matching, duplicate delivery and unexpected user IDs.
@@ -23,6 +23,8 @@ The 20 engine/API/adapter tests cover:
 
 The adapter fixtures validate ingestion, not Twitch server acceptance of OAuth scopes/subscriptions or network reconnect behavior.
 
+Additional runtime AI tests cover primary model selection and thinking settings, eligible fallback and actual-model provenance, no fallback on credentials/safety errors, budget/cooldown/concurrency, schema rejection, stale response discard, key normalization, hidden operator drafts, objective uniqueness/timers/rewards and approved-state recovery. Provider responses in automated tests are injected fixtures; they are not claims of a live Gemini call.
+
 ## Local browser walkthrough
 
 Verified through the app browser:
@@ -32,11 +34,15 @@ Verified through the app browser:
 3. Open OBS setup and preview the full read-only browser source. It shows the mission, timer, system values and persistent **SIMULATED REHEARSAL** label.
 4. Inspect the 390×844 responsive layout and navigation. Document width matches viewport width; no horizontal page overflow was observed.
 5. Verify plan loading is disabled during an active/paused mission. Set goal 6, launch a fresh rehearsal, contribute six simulated crew actions and observe completion at 100% in all systems. Verify the completed flight-recorder view.
+6. Measure body/subtitle text at 16px, AI inputs/select/Generate at exactly 48px with aligned top edges on desktop, and matching 48px heights/full widths on mobile. Header AI buttons are 44px; neither desktop nor 390px mobile has horizontal overflow.
+7. Publish an explicitly labeled local sample objective, resume, contribute two distinct scouts and observe the one-time +2 system bonus. Pause again. This checks the review/gameplay UI without claiming a Gemini call.
+8. Enter an incomplete test key and verify the specific validation message; clear it afterward. Check end confirmation offers both Keep this flight and Export recorder.
 
 Screenshots in `docs/images/` show this local rehearsal. They are not evidence of live Twitch use or an actual OBS capture.
 
 ## Required account/device checks before submission
 
+- [ ] Verify a real Gemini 3.8 Flash response with an authorized key, review its objective, publish it and demonstrate its gameplay effect. Check the UI reports the actual model.
 - [ ] Register a public Twitch application and exact callback URI using [setup](twitch-setup.md).
 - [ ] Authorize as the broadcaster; verify both real EventSub subscriptions reach live status.
 - [ ] Show real Twitch commands changing dashboard and OBS. Three real accounts should generate a relay.

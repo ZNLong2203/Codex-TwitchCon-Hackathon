@@ -11,7 +11,9 @@ The main Codex chat handled product selection, implementation, tests, visual ins
 - Implemented a deterministic mission engine with role complementarity, cooldowns, onboarding bonus, deduplication, pause and recovery.
 - Built the original orbital SVG scene, React dashboard, mobile layout and read-only OBS overlay.
 - Implemented the local OAuth and Twitch EventSub adapter, documented credential handling and live validation still needed.
-- Added engine, adapter fixture and HTTP integration tests and a reproducible build/CI workflow.
+- Added engine, adapter fixture, HTTP integration and Gemini director tests with a reproducible build/CI workflow.
+- Added Gemini 3.8 Flash runtime direction with a bounded 3.5 Flash-Lite fallback, reviewed story generation and real crew-objective rewards.
+- Revised typography to a readable 16px body scale, aligned AI controls, added actionable field validation and end/reset confirmation.
 - Exercised a labeled rehearsal and OBS-browser preview in the local browser; inspected the mobile breakpoint and captured the screenshots in this repository.
 
 ## Main session ID

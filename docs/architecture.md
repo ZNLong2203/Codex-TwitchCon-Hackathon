@@ -8,6 +8,9 @@ flowchart LR
   D[Labeled rehearsal generator] --> E[Deterministic mission engine]
   B --> E
   C[Streamer dashboard] -->|Same-origin operator API| E
+  C -->|Theme + aggregate state| A[Gemini 3.8 Flash / 3.5 Flash-Lite fallback]
+  A --> R[Validated draft / streamer review]
+  R -->|Explicit publish| E
   E -->|SSE state snapshots| C
   E -->|Read-only SSE| O[OBS browser source]
   E --> P[Ignored atomic local snapshot]
@@ -39,7 +42,7 @@ Unexpected close triggers exponential backoff capped at 30 seconds with jitter a
 - Host validation rejects unexpected hostnames to reduce DNS-rebinding exposure. No permissive CORS policy exists; foreign origins are rejected.
 - The dashboard navigation bootstraps an unpredictable HttpOnly, SameSite=Strict operator cookie. Mutating API requests require this cookie and a matching local Origin. This is a local-computer trust model, not remote account authentication.
 - Overlay URLs carry a separate random display key. It authorizes only the state stream; it cannot authenticate control requests. It rotates on restart. API responses do not contain Twitch credentials.
-- Input payload limit is 8 KiB. Invalid bodies/settings are rejected. Viewer text is rendered by React, never injected as HTML. No arbitrary shell commands, raw chat execution or model tool calls exist.
+- Input payload limit is 8 KiB. Invalid bodies/settings are rejected. Viewer text is rendered by React, never injected as HTML. No arbitrary shell commands, raw chat execution or model tool calls exist. Gemini returns a validated JSON plan, not executable code or operator API calls.
 - Mission UI collections are bounded: latest 40 activity items, latest 80 crew details, up to 10,000 distinct participants per mission, up to 10,000 recent dedupe IDs. State broadcasts are throttled to at most five frames/second with a one-second timer; slow consumers and more than 12 clients are refused/closed.
 - This server is not hardened for exposing to the internet. Do not port-forward it. A malicious local process or another local user is outside its security boundary.
 
@@ -58,11 +61,17 @@ Unexpected close triggers exponential backoff capped at 30 seconds with jitter a
 | Public research/docs                      | Git repository, no credentials                                                                                                      |
 | Internal strategy                         | Ignored `private/strategy.md`                                                                                                       |
 
-End/reset a mission to clear its current player map. The recorder stores only the current mission; there is no automatic archive or cloud analytics. Export before reset if you want history. The two self-hosted font assets and original SVG art load locally, so rehearsal requires no third-party network calls after installation.
+End/reset a mission to clear its current player map. The recorder stores only the current mission; there is no automatic archive or cloud analytics. Export before reset if you want history. Gemini AI requests require internet access. The two self-hosted font assets and original SVG art load locally, so rehearsal requires no third-party network calls after installation.
 
 ## Cost and quota
 
-No runtime OpenAI SDK, model call, inference queue, per-message AI action or paid cloud deployment is used. **Runtime AI requests: 0. Runtime AI tokens: 0.** This says nothing about development-time Codex plan usage, internet/electricity or optional future hosting.
+Runtime AI uses `gemini-3.8-flash` as primary with `thinkingLevel: low`. On an eligible transient/model-availability error or unusable structured response, it attempts `gemini-3.5-flash-lite` once with `thinkingLevel: minimal`. Credential/permission/configuration failures and safety refusals are not bypassed by fallback. Each attempt consumes the mission request limit and its own budget reservation. Model provenance is attached to the reviewed/published story.
+
+The request is an allowlisted aggregate state and a streamer-entered theme. No raw chat, viewer IDs, names, OAuth tokens or roster are sent. The model proposes the focus role, 2–6 distinct contributors, a 30–120 second window and a +1–3 reward to each system. A strict schema rejects out-of-range output; streamer approval is required. The engine counts accepted unique contributors and applies the reward once. Queued objectives activate at launch, active timers pause with the rescue, and expiry has no penalty.
+
+Only approved content appears on the display state stream. Operator SSE includes pending drafts and cost metadata; overlay SSE excludes them. Local examples carry `source: sample` and are blocked from Twitch publication.
+
+Default guard: $0.25/server process, eight provider attempts per mission, 20-second request cooldown, one concurrent generation, 2,048 output/thinking tokens/attempt, 16 KiB prompt-byte guard, cached identical ready-state requests. At current configured prices, the app reserves $0.03 before a primary attempt and $0.01 before fallback. Failed/aborted calls retain reservations. Byte limits/reservations are conservative engineering estimates, **not a guaranteed provider billing ceiling**. Actual estimates use reported prompt/total tokens and the attempted model's configured paid text rates. There is no automatic retry loop. See [AI setup](ai-setup.md) for sources, privacy terms and pricing.
 
 At a normal successful connection: one token validation GET and two subscription POSTs, then one validation GET/hour. Reconnects add subscription calls; errors and retries affect actual counts. Incoming events do not trigger additional API calls. The connection panel counts attempted validation/subscription HTTP calls and received EventSub notifications; it is not a Twitch quota meter, dollar invoice or stream viewer count. No chat messages are sent, so the app does not consume chat send-message buckets.
 
@@ -70,4 +79,4 @@ Use [Twitch rate-limit documentation](https://dev.twitch.tv/docs/api/guide/#twit
 
 ## Scope limits
 
-This MVP is a local single-channel application with a shared three-role mechanic and three story presets. It is not a persistent cross-channel world, an AI story generator, a moderation product, a Twitch Extension, or a proven large-scale service. The design hypothesis is that complementary contributions and arrival-context reduce the social cost of joining; actual retention or engagement improvement requires a real study.
+This MVP is a local single-channel application with a shared three-role mechanic and three story presets. It is not a persistent cross-channel world, a moderation product, a Twitch Extension, or a proven large-scale service. The design hypothesis is that complementary contributions and arrival-context reduce the social cost of joining; actual retention or engagement improvement requires a real study.

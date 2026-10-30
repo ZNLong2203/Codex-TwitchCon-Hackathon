@@ -42,3 +42,9 @@ No research can guarantee a prize. Select one concept, demonstrate a working end
 ## Submission readiness evidence still required
 
 Run the real adapter with authorized Twitch credentials, demonstrate an actual chat message changing the live OBS overlay, verify recovery and control behavior, record real Twitch and Codex footage, publish a viewable video, finish English project description and setup instructions, capture session ID, then submit via Devpost and confirm status. Local simulated traffic is useful for judging setup but must be labeled and cannot replace evidence of operation on Twitch.
+
+## Runtime AI revision — 30 October 2026
+
+After product review, the implementation now includes a real Gemini mission director rather than optimizing away runtime AI. [Rules](https://twitchcon-codex.devpost.com/rules) require Codex in the build and authorize third-party integrations subject to their terms. The FAQ does not mandate a specific runtime provider. Using Gemini is a reasonable reading, not an explicit provider-specific approval. The chosen provider is **Gemini 3.8 Flash**, with **3.5 Flash-Lite** as a single eligible fallback, as requested by the entrant.
+
+AI proposes a story and a bounded distinct-person crew objective based on aggregate game state. The streamer reviews it; the engine enforces objective timing and rewards. This makes the AI affect play instead of merely adding cosmetic text. No claim of novelty, live Gemini verification or real-audience impact follows from implementing the feature. See [AI setup and sources](ai-setup.md).

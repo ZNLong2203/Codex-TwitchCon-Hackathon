@@ -2,6 +2,7 @@
 
 - [Quick start and project overview](../README.md)
 - [Research, event requirements, and existing winners](research.md)
+- [AI director, Gemini setup and cost controls](ai-setup.md)
 - [Twitch application and OBS setup](twitch-setup.md)
 - [Architecture, privacy, and runtime cost](architecture.md)
 - [Testing and current verification limits](testing.md)

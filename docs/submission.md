@@ -8,13 +8,15 @@ RAID//RELAY
 
 ## Tagline
 
-Turn a Twitch raid into a rescue crew. Three roles. One shared signal. Everyone can help.
+An AI mission director turns Twitch chat into a rescue crew. A new story, a real role, a shared signal.
 
 ## Inspiration
 
 A Twitch raid moves people into a new community in an instant. It does not automatically give those people context, a role, or an easy first interaction. We wanted to make the arrival itself a shared moment: something the existing community and the new arrivals could build together.
 
 ## What it does
+
+Gemini 3.8 Flash directs the adventure: it reads the mission’s aggregate progress and the streamer’s theme, then proposes an original rescue story, newcomer welcome and playable crew objective. The streamer reviews and publishes it. Objectives require distinct people in a selected role before a time window closes; completion awards a bounded bonus in the actual game. Gemini 3.5 Flash-Lite is a single eligible fallback, with the model used clearly recorded.
 
 RAID//RELAY is a cooperative rescue mission for Twitch chat, with a streamer dashboard and an OBS browser overlay. Viewers become scouts with `!scan`, engineers with `!repair`, or pilots with `!boost`. Each role powers a different ship system. Three different people using all three roles within 15 seconds create a relay, adding a bonus to every system. One person cannot trigger the teamwork bonus alone by spamming or switching roles.
 
@@ -28,7 +30,7 @@ We used OpenAI Codex to research the event requirements, compare prior Twitch ha
 
 The local Express server is authoritative. It validates exact chat commands, enforces a per-person cooldown, deduplicates deliveries and calculates three-person relays deterministically. EventSub carries chat and incoming raids; Server-Sent Events synchronize the dashboard and OBS overlay. Atomic local snapshots support restoring an interrupted mission paused. OAuth tokens stay in memory and are not committed or included in recorder exports.
 
-The application does not call a language model at runtime. Codex is the development tool; the runtime is a predictable cooperative game. This keeps per-viewer AI token cost at zero and makes a secret-free, clearly labeled rehearsal possible for judges.
+Codex is the development tool; Gemini powers the runtime mission director. The deterministic engine enforces every AI-proposed objective after schema validation and streamer approval. We cap attempts, output tokens and estimated budget, cache identical ready-state requests and avoid per-chat-message inference. Generation happens asynchronously so the streamer can keep controlling the game. A secret-free rehearsal uses clearly labeled local examples instead of fabricating a model response.
 
 ## What makes it different
 
@@ -54,7 +56,7 @@ Playtest the onboarding and relay timing with small streamers, measure participa
 
 ## Built with
 
-OpenAI Codex, TypeScript, React, Vite, Node.js, Express, Twitch EventSub, Twitch OAuth, Server-Sent Events, Zod, ws, Lucide.
+OpenAI Codex, Gemini 3.8 Flash, Gemini 3.5 Flash-Lite, TypeScript, React, Vite, Node.js, Express, Twitch EventSub, Twitch OAuth, Server-Sent Events, Zod, ws, Lucide.
 
 ## Submission fields to complete
 
