@@ -19,7 +19,7 @@ const validationSchema = z.object({
   login: z.string(),
   user_id: z.string(),
   scopes: z.array(z.string()),
-  expires_in: z.number(),
+  expires_in: z.number().positive(),
 });
 const messageSchema = z.object({
   metadata: z.object({
@@ -95,6 +95,14 @@ export function ingestNotification(engine: MissionEngine, raw: unknown, broadcas
   return false;
 }
 
+// Dependencies are replaceable only by trusted server code, never HTTP input.
+export type TwitchTransport = {
+  fetch?: typeof fetch;
+  socket?: (url: string, options: WebSocket.ClientOptions) => WebSocket;
+};
+class TwitchError extends Error {}
+const MAX_RECONNECTS = 6;
+
 export class TwitchBridge {
   connection: Connection = {
     status: 'offline',
@@ -119,10 +127,12 @@ export class TwitchBridge {
   private validationTimer?: ReturnType<typeof setInterval>;
   private watchdog?: ReturnType<typeof setInterval>;
   private lastMessage = 0;
+  private welcomeTimers = new Map<WebSocket, ReturnType<typeof setTimeout>>();
   private timeoutMs = 30_000;
   constructor(
     private engine: MissionEngine,
     private changed: () => void,
+    private transport: TwitchTransport = {},
   ) {}
   private update(patch: Partial<Connection>) {
     this.connection = { ...this.connection, ...patch };
@@ -130,19 +140,19 @@ export class TwitchBridge {
   }
   private async request(url: string, init: RequestInit = {}) {
     this.connection.apiCalls++;
-    return fetch(url, { ...init, signal: AbortSignal.timeout(12_000) });
+    return (this.transport.fetch ?? fetch)(url, { ...init, signal: AbortSignal.timeout(12_000) });
   }
   private async validate() {
     const response = await this.request('https://id.twitch.tv/oauth2/validate', {
       headers: { Authorization: `OAuth ${this.token}` },
     });
     if (!response.ok)
-      throw new Error('Twitch authorization expired or was revoked. Connect again.');
+      throw new TwitchError('Twitch authorization expired or was revoked. Connect again.');
     const result = validationSchema.parse(await response.json());
     if (result.client_id !== this.clientId || !result.scopes.includes('user:read:chat'))
-      throw new Error('The token must belong to this client ID and grant user:read:chat.');
+      throw new TwitchError('The token must belong to this client ID and grant user:read:chat.');
     if (this.userId && this.userId !== result.user_id)
-      throw new Error('The authorized account changed. Connect again.');
+      throw new TwitchError('The authorized account changed. Connect again.');
     return result;
   }
   async connect(clientId: string, token: string) {
@@ -168,6 +178,7 @@ export class TwitchBridge {
       this.userId = identity.user_id;
       this.update({ channel: identity.login, message: 'Opening EventSub connection…' });
       this.open('wss://eventsub.wss.twitch.tv/ws', false, generation);
+      if (generation !== this.generation) return;
       this.validationTimer = setInterval(() => {
         void this.validate().catch((e) => {
           if (generation === this.generation) this.fail(e);
@@ -179,12 +190,32 @@ export class TwitchBridge {
       }, 5000);
     } catch (e) {
       if (generation === this.generation) this.fail(e);
-      throw e;
+      throw this.safeError(e);
     }
   }
   private open(url: string, migrating: boolean, generation: number) {
     if (generation !== this.generation) return;
-    const socket = new WebSocket(url, { handshakeTimeout: 12_000, maxPayload: 128 * 1024 });
+    let socket: WebSocket;
+    try {
+      socket = (this.transport.socket ?? ((target, options) => new WebSocket(target, options)))(
+        url,
+        { handshakeTimeout: 12_000, maxPayload: 128 * 1024 },
+      );
+    } catch {
+      this.fail(new TwitchError('Could not open the Twitch connection. Reconnect your account.'));
+      return;
+    }
+    let welcomed = false;
+    socket.on('open', () => {
+      if (!this.current(socket, generation)) return;
+      this.welcomeTimers.set(
+        socket,
+        setTimeout(() => {
+          this.welcomeTimers.delete(socket);
+          if (!welcomed && this.current(socket, generation)) socket.terminate();
+        }, 10_000),
+      );
+    });
     if (migrating) this.candidate = socket;
     else {
       this.socket = socket;
@@ -194,7 +225,7 @@ export class TwitchBridge {
       /* close schedules bounded reconnect; never log credentials or URLs */
     });
     socket.on('message', (data) => {
-      if (generation !== this.generation) return;
+      if (!this.current(socket, generation)) return;
       let parsed: ReturnType<typeof messageSchema.safeParse>;
       try {
         parsed = messageSchema.safeParse(JSON.parse(data.toString()));
@@ -202,9 +233,15 @@ export class TwitchBridge {
         return;
       }
       if (!parsed.success) return;
-      this.lastMessage = Date.now();
       const { metadata, payload } = parsed.data;
+      if (!welcomed && metadata.message_type !== 'session_welcome') return;
+      if (socket === this.socket) this.lastMessage = Date.now();
       if (metadata.message_type === 'session_welcome' && payload.session) {
+        if (welcomed) return;
+        welcomed = true;
+        clearTimeout(this.welcomeTimers.get(socket));
+        this.welcomeTimers.delete(socket);
+        this.lastMessage = Date.now();
         this.timeoutMs = (payload.session.keepalive_timeout_seconds ?? 30) * 1000;
         if (migrating) {
           const old = this.socket;
@@ -218,22 +255,39 @@ export class TwitchBridge {
             message: 'EventSub session migrated · subscriptions preserved',
           });
         } else {
-          void this.subscribe(payload.session.id, generation).catch((e) => {
-            if (generation === this.generation) this.fail(e);
+          void this.subscribe(payload.session.id, generation, socket).catch((e) => {
+            if (this.current(socket, generation)) this.fail(e);
           });
         }
       } else if (metadata.message_type === 'session_reconnect' && payload.session?.reconnect_url) {
-        const target = new URL(payload.session.reconnect_url);
-        if (target.protocol !== 'wss:' || target.hostname !== 'eventsub.wss.twitch.tv') {
-          this.fail(new Error('Unexpected Twitch reconnect host.'));
+        let target: URL;
+        try {
+          target = new URL(payload.session.reconnect_url);
+        } catch {
+          this.fail(
+            new TwitchError('Twitch sent an invalid reconnect URL. Reconnect your account.'),
+          );
+          return;
+        }
+        if (
+          target.protocol !== 'wss:' ||
+          target.hostname !== 'eventsub.wss.twitch.tv' ||
+          target.username ||
+          target.password ||
+          target.hash ||
+          (target.port && target.port !== '443')
+        ) {
+          this.fail(new TwitchError('Unexpected Twitch reconnect host.'));
           return;
         }
         if (!this.candidate) {
           this.update({ status: 'reconnecting', message: 'Twitch requested a session handoff…' });
-          this.open(target.href, true, generation);
+          this.open(payload.session.reconnect_url, true, generation);
         }
       } else if (metadata.message_type === 'revocation') {
-        this.fail(new Error('Twitch revoked an EventSub subscription. Reconnect your account.'));
+        this.fail(
+          new TwitchError('Twitch revoked an EventSub subscription. Reconnect your account.'),
+        );
       } else if (metadata.message_type === 'notification') {
         this.connection.received++;
         if (
@@ -248,31 +302,53 @@ export class TwitchBridge {
       }
     });
     socket.on('close', (code) => {
-      if (generation !== this.generation) return;
+      clearTimeout(this.welcomeTimers.get(socket));
+      this.welcomeTimers.delete(socket);
+      if (!this.current(socket, generation)) return;
       if (socket === this.candidate) {
         this.candidate = undefined;
-        this.socket?.terminate();
+        const old = this.socket;
+        this.socket = undefined;
+        old?.terminate();
+        this.reconnect(generation);
         return;
       }
-      if (socket !== this.socket) return;
       this.socket = undefined;
-      if ([4004, 4006, 4007].includes(code)) {
-        this.fail(new Error(`Twitch closed the session (${code}). Reconnect your account.`));
+      // A handoff can still finish after Twitch closes the old socket.
+      if (this.candidate) return;
+      if ([4001, 4002, 4003].includes(code)) {
+        this.fail(new TwitchError(`Twitch closed the session (${code}). Reconnect your account.`));
         return;
       }
-      this.update({
-        status: 'reconnecting',
-        subscriptions: 0,
-        message: 'Connection interrupted. Events during disconnection cannot be replayed.',
-      });
-      const delay = Math.min(30_000, 1000 * 2 ** this.retries++) + Math.random() * 500;
-      this.reconnectTimer = setTimeout(
-        () => this.open('wss://eventsub.wss.twitch.tv/ws', false, generation),
-        delay,
-      );
+      // 4006 is a transient network error. Failed handoffs (4004/4007) start a fresh session.
+      this.reconnect(generation);
     });
   }
-  private async subscribe(sessionId: string, generation: number) {
+  private current(socket: WebSocket, generation: number) {
+    return generation === this.generation && (socket === this.socket || socket === this.candidate);
+  }
+  private reconnect(generation: number) {
+    clearTimeout(this.reconnectTimer);
+    if (this.retries >= MAX_RECONNECTS) {
+      this.fail(
+        new TwitchError(
+          'Twitch reconnect limit reached. Check your network and reconnect your account.',
+        ),
+      );
+      return;
+    }
+    this.update({
+      status: 'reconnecting',
+      subscriptions: 0,
+      message: 'Connection interrupted. Events during disconnection cannot be replayed.',
+    });
+    const delay = Math.min(30_000, 1000 * 2 ** this.retries++) + Math.random() * 500;
+    this.reconnectTimer = setTimeout(
+      () => this.open('wss://eventsub.wss.twitch.tv/ws', false, generation),
+      delay,
+    );
+  }
+  private async subscribe(sessionId: string, generation: number, socket: WebSocket) {
     const definitions = [
       {
         type: 'channel.chat.message',
@@ -282,7 +358,7 @@ export class TwitchBridge {
     ];
     let count = 0;
     for (const definition of definitions) {
-      if (generation !== this.generation) return;
+      if (!this.current(socket, generation)) return;
       const response = await this.request('https://api.twitch.tv/helix/eventsub/subscriptions', {
         method: 'POST',
         headers: {
@@ -296,15 +372,16 @@ export class TwitchBridge {
           transport: { method: 'websocket', session_id: sessionId },
         }),
       });
+      if (!this.current(socket, generation)) return;
       if (!response.ok)
-        throw new Error(
+        throw new TwitchError(
           response.status === 429
             ? 'Twitch API limit reached. Wait before reconnecting.'
             : `Twitch subscription failed (${response.status}). Verify broadcaster login and chat permission.`,
         );
       count++;
     }
-    if (generation !== this.generation) return;
+    if (!this.current(socket, generation)) return;
     if (this.retries > 0) this.connection.recoveries++;
     this.retries = 0;
     this.update({
@@ -313,8 +390,13 @@ export class TwitchBridge {
       message: 'Listening to your channel · chat + incoming raids',
     });
   }
+  private safeError(error: unknown) {
+    return error instanceof TwitchError
+      ? error
+      : new TwitchError('Could not reach Twitch. Check your network and reconnect.');
+  }
   private fail(error: unknown) {
-    const message = error instanceof Error ? error.message : 'Twitch connection failed.';
+    const message = this.safeError(error).message;
     this.disconnect();
     this.update({ status: 'error', message });
   }
@@ -323,6 +405,8 @@ export class TwitchBridge {
     clearTimeout(this.reconnectTimer);
     clearInterval(this.validationTimer);
     clearInterval(this.watchdog);
+    for (const timer of this.welcomeTimers.values()) clearTimeout(timer);
+    this.welcomeTimers.clear();
     this.socket?.close();
     this.candidate?.close();
     this.socket = undefined;
