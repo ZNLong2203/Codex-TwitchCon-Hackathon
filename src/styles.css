@@ -24,7 +24,7 @@
   color: #e9ebe5;
   background: #0b0d10;
   font-synthesis: none;
-  font-size: 13px;
+  font-size: 16px;
   --lime: #c3f66b;
   --muted: #788078;
   --border: #262a2b;
@@ -110,7 +110,7 @@ code {
   gap: 10px;
   letter-spacing: -0.7px;
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -129,14 +129,14 @@ code {
 }
 .brand-slashes {
   color: var(--lime);
-  font-size: 19px;
+  font-size: 22px;
   padding: 0 1px;
   letter-spacing: -3px;
   margin-right: 4px;
 }
 .brand small {
   display: block;
-  font-size: 7px;
+  font-size: 12px;
   font-family: var(--mono);
   letter-spacing: 2.2px;
   color: #778171;
@@ -159,14 +159,14 @@ code {
   border: 1px solid #49463a;
   background: #2b2b23;
   color: #cfccb9;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   border-radius: 6px;
   width: 31px;
   height: 31px;
 }
 .workspace strong {
-  font-size: 11px;
+  font-size: 14px;
   display: block;
   font-weight: 550;
   max-width: 118px;
@@ -174,7 +174,7 @@ code {
   overflow: hidden;
 }
 .workspace small {
-  font-size: 9px;
+  font-size: 12px;
   color: #757c78;
   display: block;
   margin-top: 4px;
@@ -184,7 +184,7 @@ code {
   color: #747b71;
 }
 .nav-label {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1.8px;
   color: #606a63;
   margin: 0 10px 13px;
@@ -197,7 +197,7 @@ code {
   padding: 12px 11px;
   border: 1px solid transparent;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 14px;
   color: #8b938e;
   margin-bottom: 5px;
   text-align: left;
@@ -211,7 +211,7 @@ code {
 .nav-item small {
   margin-left: auto;
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: 12px;
   color: #758166;
   background: #242a20;
   border-radius: 3px;
@@ -247,16 +247,16 @@ code {
   margin-bottom: 14px;
 }
 .built-card strong {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 550;
 }
 .built-card p {
-  font-size: 9px;
+  font-size: 12px;
   color: #82917a;
   margin-top: 7px;
 }
 .tiny-link {
-  font-size: 7px;
+  font-size: 12px;
   letter-spacing: 1.1px;
   color: #9da891;
   margin-top: 18px;
@@ -279,7 +279,7 @@ code {
   display: flex;
   gap: 7px;
   align-items: center;
-  font-size: 8px;
+  font-size: 12px;
   color: #68716a;
   margin-top: 21px;
   border-top: 1px solid var(--border);
@@ -320,7 +320,7 @@ code {
   display: flex;
   align-items: center;
   gap: 13px;
-  font-size: 10px;
+  font-size: 12px;
   color: #69726c;
 }
 .breadcrumbs svg {
@@ -339,7 +339,7 @@ code {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 7px;
+  font-size: 12px;
   letter-spacing: 1.3px;
   color: #95a28d;
   font-family: var(--mono);
@@ -357,7 +357,7 @@ code {
   width: 27px;
   height: 27px;
   border-radius: 50%;
-  font-size: 9px;
+  font-size: 12px;
 }
 .mobile-toggle {
   display: none !important;
@@ -376,7 +376,7 @@ main {
 }
 .eyebrow {
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1.6px;
   color: #8a9386;
   display: flex;
@@ -391,14 +391,14 @@ main {
 }
 .page-heading h1 {
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 31px;
+  font-size: 34px;
   font-weight: 500;
   letter-spacing: -1.3px;
   margin: 9px 0 9px;
   line-height: 1.25;
 }
 .page-heading p {
-  font-size: 11px;
+  font-size: 14px;
   color: #858d85;
   line-height: 1.7;
 }
@@ -416,7 +416,7 @@ main {
   min-height: 35px;
   border: 1px solid transparent;
   border-radius: 5px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 550;
   white-space: nowrap;
   transition:
@@ -476,13 +476,13 @@ main {
   gap: 14px;
   padding: 11px 13px;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: 12px;
   color: #9a9d87;
   margin-bottom: 19px;
 }
 .tag {
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: 12px;
   letter-spacing: 0.8px;
   border-radius: 4px;
   padding: 5px 7px;
@@ -518,7 +518,7 @@ main {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 9px;
+  font-size: 12px;
 }
 .mission-grid {
   display: grid;
@@ -541,7 +541,7 @@ main {
   background: linear-gradient(120deg, #1b211b, #161b18);
 }
 .mission-card-header .eyebrow {
-  font-size: 7px;
+  font-size: 12px;
   letter-spacing: 1.1px;
   color: #909b87;
   gap: 10px;
@@ -552,7 +552,7 @@ main {
 .mission-card-header h2 {
   font-family: 'Space Grotesk Variable', sans-serif;
   font-weight: 500;
-  font-size: 23px;
+  font-size: 28px;
   letter-spacing: -0.7px;
   margin-top: 10px;
   display: flex;
@@ -560,7 +560,7 @@ main {
   align-items: center;
 }
 .mission-card-header .tag {
-  font-size: 6px;
+  font-size: 12px;
   font-family: var(--mono);
   letter-spacing: 0.7px;
   background: #262e22;
@@ -591,7 +591,7 @@ main {
   position: absolute;
   left: 20px;
   top: 16px;
-  font-size: 6px;
+  font-size: 12px;
   font-family: var(--mono);
   display: flex;
   flex-direction: column;
@@ -608,7 +608,7 @@ main {
   align-items: center;
   color: #a6b296;
   font-family: var(--mono);
-  font-size: 6px;
+  font-size: 12px;
   letter-spacing: 1px;
   background: #1a251a99;
   border: 1px solid #3b4b3077;
@@ -628,7 +628,7 @@ main {
   justify-content: space-between;
   z-index: 1;
   font-family: var(--mono);
-  font-size: 6px;
+  font-size: 12px;
   color: #77856d;
   letter-spacing: 0.65px;
 }
@@ -677,7 +677,7 @@ main {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 9px;
+  font-size: 12px;
   color: #c4cfb7;
 }
 .transport-label strong {
@@ -685,7 +685,7 @@ main {
 }
 .transport-time {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 12px;
   color: #9ca68c;
   display: flex;
   align-items: center;
@@ -702,7 +702,7 @@ main {
   gap: 7px;
 }
 .mission-transport .button {
-  font-size: 9px;
+  font-size: 12px;
   padding: 8px 11px;
   min-height: 29px;
 }
@@ -726,7 +726,7 @@ main {
   display: flex;
   gap: 6px;
   align-items: center;
-  font-size: 8px;
+  font-size: 12px;
   color: #bec6b6;
 }
 .role-icon {
@@ -736,7 +736,7 @@ main {
 .role-count {
   margin-left: auto;
   color: #89967c;
-  font-size: 7px;
+  font-size: 12px;
   display: flex;
   gap: 3px;
   align-items: center;
@@ -750,17 +750,17 @@ main {
 }
 .role-progress strong {
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 500;
   letter-spacing: -1px;
 }
 .role-progress small {
-  font-size: 12px;
+  font-size: 15px;
   color: #7a8573;
   margin-left: 2px;
 }
 .role-progress code {
-  font-size: 8px;
+  font-size: 12px;
   color: #a9a2be;
   border: 1px solid #45404d;
   background: #29252f;
@@ -795,7 +795,7 @@ main {
   justify-content: space-between;
   align-items: center;
   margin-top: 9px;
-  font-size: 6px;
+  font-size: 12px;
   letter-spacing: 1px;
   color: #7d8974;
   font-family: var(--mono);
@@ -817,7 +817,7 @@ main {
   gap: 8px;
 }
 .panel-header h3 {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -827,7 +827,7 @@ main {
   color: #8a947e;
 }
 .panel-header .tag {
-  font-size: 7px;
+  font-size: 12px;
   padding: 4px 6px;
 }
 .crew-card {
@@ -853,13 +853,13 @@ main {
 }
 .crew-stats strong {
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 29px;
+  font-size: 34px;
   font-weight: 500;
   line-height: 1;
   letter-spacing: -1px;
 }
 .crew-stats span {
-  font-size: 8px;
+  font-size: 12px;
   color: #8a9384;
 }
 .lime-text {
@@ -887,10 +887,10 @@ main {
   border-radius: 5px;
   display: grid;
   place-items: center;
-  font-size: 9px;
+  font-size: 12px;
 }
 .crew-row strong {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 450;
   display: block;
   max-width: 115px;
@@ -898,7 +898,7 @@ main {
   text-overflow: ellipsis;
 }
 .crew-row small {
-  font-size: 7px;
+  font-size: 12px;
   color: #8c9384;
   display: block;
   margin-top: 3px;
@@ -907,7 +907,7 @@ main {
   color: #67715f;
 }
 .tiny-tag {
-  font-size: 6px;
+  font-size: 12px;
   font-family: var(--mono);
   letter-spacing: 0.7px;
   background: #292d29;
@@ -918,7 +918,7 @@ main {
 }
 .crew-row > .tiny-tag {
   margin-left: auto;
-  font-size: 5px;
+  font-size: 12px;
 }
 .crew-dot {
   width: 4px;
@@ -957,12 +957,12 @@ main {
   position: absolute;
 }
 .empty-crew strong {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 450;
   color: #adb7a1;
 }
 .empty-crew p {
-  font-size: 8px;
+  font-size: 12px;
   color: #727d69;
   line-height: 1.7;
   margin-top: 6px;
@@ -974,7 +974,7 @@ main {
   align-items: center;
   gap: 7px;
   color: #829077;
-  font-size: 8px;
+  font-size: 12px;
 }
 .crew-card-foot > .status-dot {
   width: 4px;
@@ -996,19 +996,19 @@ main {
   color: #9b86bf;
 }
 .boarding-card .eyebrow {
-  font-size: 6px;
+  font-size: 12px;
   color: #a490bd;
   letter-spacing: 1.3px;
   margin: 3px 0 14px;
 }
 .boarding-card h3 {
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   letter-spacing: -0.5px;
 }
 .boarding-card > p {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.8;
   color: #998fa6;
   margin-top: 8px;
@@ -1022,14 +1022,14 @@ main {
 }
 .boarding-instruction > span {
   display: block;
-  font-size: 6px;
+  font-size: 12px;
   letter-spacing: 1.2px;
   color: #a995bd;
   font-family: var(--mono);
 }
 .boarding-instruction > strong {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 7px;
   font-weight: 450;
   color: #d2c9df;
@@ -1040,12 +1040,12 @@ main {
   margin-top: 9px;
 }
 .boarding-instruction code {
-  font-size: 8px;
+  font-size: 12px;
 }
 .boarding-footer {
   border-top: 1px solid #3b3246;
   margin-top: 14px;
-  font-size: 7px;
+  font-size: 12px;
   color: #a18eb3;
   display: flex;
   align-items: center;
@@ -1069,7 +1069,7 @@ main {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 6px;
+  font-size: 12px;
   letter-spacing: 1px;
   color: #7d8b71;
   font-family: var(--mono);
@@ -1087,7 +1087,7 @@ main {
   align-items: center;
   min-height: 34px;
   border-bottom: 1px solid #252a25;
-  font-size: 8px;
+  font-size: 12px;
 }
 .feed-row:last-child {
   border: 0;
@@ -1115,7 +1115,7 @@ main {
 }
 .feed-row time {
   margin-left: auto;
-  font-size: 6px;
+  font-size: 12px;
   font-family: var(--mono);
   color: #6e7967;
   white-space: nowrap;
@@ -1123,7 +1123,7 @@ main {
 }
 .feed-row div > .first-badge {
   display: inline-block;
-  font-size: 5px;
+  font-size: 12px;
   font-family: var(--mono);
   letter-spacing: 0.7px;
   background: #2c3323;
@@ -1153,29 +1153,29 @@ main {
   color: #54644a;
 }
 .empty-feed p {
-  font-size: 10px;
+  font-size: 12px;
   color: #9aa58f;
   line-height: 2;
 }
 .empty-feed span {
-  font-size: 9px;
+  font-size: 12px;
   color: #6d7b64;
 }
 .rehearsal-card .panel-header {
   padding: 17px 16px;
 }
 .rehearsal-card .panel-header h3 {
-  font-size: 10px;
+  font-size: 12px;
 }
 .rehearsal-card > p {
-  font-size: 9px;
+  font-size: 12px;
   color: #a5ad9b;
   line-height: 1.8;
   margin: 15px 16px 13px;
 }
 .rehearsal-card > p > span {
   color: #75816a;
-  font-size: 8px;
+  font-size: 12px;
 }
 .simulation-buttons {
   display: flex;
@@ -1183,7 +1183,7 @@ main {
   padding: 0 16px;
 }
 .simulation-buttons > .button {
-  font-size: 8px;
+  font-size: 12px;
   min-height: 31px;
   padding: 8px 9px;
   flex: 1;
@@ -1194,7 +1194,7 @@ main {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 8px;
+  font-size: 12px;
   color: #b2c89a;
   width: calc(100% - 32px);
   margin: 12px 16px 16px;
@@ -1204,7 +1204,7 @@ main {
 .autoplay-button > span {
   margin-left: auto;
   font-family: var(--mono);
-  font-size: 5px;
+  font-size: 12px;
   letter-spacing: 0.8px;
   display: flex;
   align-items: center;
@@ -1220,7 +1220,7 @@ main {
   gap: 17px;
   margin: 18px 0 25px;
   padding: 12px 3px;
-  font-size: 8px;
+  font-size: 12px;
   color: #7b866f;
 }
 .insight-strip > span {
@@ -1229,7 +1229,7 @@ main {
   gap: 6px;
   color: #b3c39e;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: 12px;
 }
 .insight-strip p {
   line-height: 1.6;
@@ -1240,7 +1240,7 @@ main {
 }
 .insight-strip > button {
   margin-left: auto;
-  font-size: 8px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1253,7 +1253,7 @@ main {
   justify-content: space-between;
   border-top: 1px solid #252b23;
   padding: 17px 0 20px;
-  font-size: 7px;
+  font-size: 12px;
   color: #67745d;
   gap: 15px;
 }
@@ -1264,7 +1264,7 @@ main {
 }
 .page-footer > span:last-child {
   font-family: var(--mono);
-  font-size: 6px;
+  font-size: 12px;
   letter-spacing: 1px;
   display: flex;
   gap: 10px;
@@ -1284,7 +1284,7 @@ main {
   color: #edb6a4;
   padding: 10px 12px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.6;
 }
 .error-banner > .icon-button {
@@ -1299,7 +1299,7 @@ main {
   background: #263820;
   border: 1px solid #688d44;
   color: #d6efbd;
-  font-size: 11px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1321,7 +1321,7 @@ main {
 }
 .loading-screen > p {
   color: #88937d;
-  font-size: 12px;
+  font-size: 15px;
   max-width: 350px;
   line-height: 1.8;
   text-align: center;
@@ -1342,7 +1342,7 @@ main {
   backdrop-filter: blur(3px);
 }
 .rescue-celebration > span {
-  font-size: 9px;
+  font-size: 12px;
   font-family: var(--mono);
   letter-spacing: 2px;
   color: var(--lime);
@@ -1359,7 +1359,7 @@ main {
   line-height: 1.2;
 }
 .rescue-celebration p {
-  font-size: 12px;
+  font-size: 15px;
   color: #9cb087;
 }
 .plans-grid {
@@ -1401,7 +1401,7 @@ main {
   top: 18px;
   font-family: var(--mono);
   letter-spacing: 1.6px;
-  font-size: 7px;
+  font-size: 12px;
   color: #b2c6a3;
 }
 .plan-planet {
@@ -1428,17 +1428,17 @@ main {
   padding: 23px;
 }
 .plan-content .eyebrow {
-  font-size: 7px;
+  font-size: 12px;
 }
 .plan-content h2 {
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 23px;
+  font-size: 28px;
   font-weight: 500;
   letter-spacing: -0.6px;
   margin: 14px 0;
 }
 .plan-content p {
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.9;
   color: #919d85;
   min-height: 84px;
@@ -1447,7 +1447,7 @@ main {
   display: flex;
   gap: 17px;
   padding: 20px 0;
-  font-size: 9px;
+  font-size: 12px;
   color: #8d9b82;
 }
 .plan-meta > span {
@@ -1468,7 +1468,7 @@ main {
   color: #9eb68a;
   padding: 14px 16px;
   margin: 17px 0 28px;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.8;
 }
 .info-box > svg {
@@ -1487,12 +1487,12 @@ main {
 .recorder-hero h2 {
   font-family: 'Space Grotesk Variable', sans-serif;
   font-weight: 500;
-  font-size: 31px;
+  font-size: 34px;
   letter-spacing: -1px;
   margin: 18px 0;
 }
 .recorder-hero p {
-  font-size: 12px;
+  font-size: 15px;
   color: #98a38c;
   line-height: 2;
   margin-bottom: 25px;
@@ -1522,7 +1522,7 @@ main {
   color: var(--lime);
 }
 .metric-card span {
-  font-size: 11px;
+  font-size: 14px;
   color: #8e9d81;
   line-height: 1.8;
 }
@@ -1532,12 +1532,12 @@ main {
 }
 .story-card h3 {
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 500;
   margin: 15px 0;
 }
 .story-card > p {
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.9;
   color: #a2ad98;
   max-width: 720px;
@@ -1556,13 +1556,13 @@ main {
 }
 .guide-card h2 {
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 500;
   letter-spacing: -0.7px;
   margin: 17px 0;
 }
 .guide-card p {
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.9;
   color: #98a38b;
 }
@@ -1581,13 +1581,13 @@ main {
   background: #21291c;
 }
 .guide-card h3 {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 500;
   margin-bottom: 5px;
 }
 .guide-role code {
   color: var(--lime);
-  font-size: 10px;
+  font-size: 12px;
 }
 .guide-callout {
   display: flex;
@@ -1600,7 +1600,7 @@ main {
   padding: 18px;
 }
 .guide-callout strong {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 500;
 }
 .guide-callout p {
@@ -1613,7 +1613,7 @@ main {
   margin: 27px 0;
 }
 .guide-step > span {
-  font-size: 10px;
+  font-size: 12px;
   font-family: var(--mono);
   color: var(--lime);
   border: 1px solid #3a4a2d;
@@ -1628,7 +1628,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 13px;
-  font-size: 10px;
+  font-size: 12px;
   color: #a4b395;
   padding: 0 17px;
 }
@@ -1642,7 +1642,7 @@ main {
   font-family: var(--mono);
 }
 .muted-note {
-  font-size: 10px;
+  font-size: 12px;
   color: #809371;
   line-height: 1.7;
 }
@@ -1682,17 +1682,17 @@ dialog::backdrop {
   margin-bottom: 23px;
 }
 .modal .eyebrow {
-  font-size: 8px;
+  font-size: 12px;
 }
 .modal h2 {
   font-family: 'Space Grotesk Variable', sans-serif;
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 500;
   letter-spacing: -1px;
   margin: 12px 0;
 }
 .modal > p {
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.9;
   color: #99a88b;
 }
@@ -1709,13 +1709,13 @@ dialog::backdrop {
   color: #8c9b7d;
 }
 .connection-status strong {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   display: block;
   margin-bottom: 6px;
 }
 .connection-status small {
-  font-size: 10px;
+  font-size: 12px;
   color: #92a181;
   line-height: 1.8;
   display: block;
@@ -1727,13 +1727,13 @@ dialog::backdrop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 14px;
   color: #c1cdb4;
   margin: 20px 0 9px;
 }
 .field-label > span {
   font-family: var(--mono);
-  font-size: 6px;
+  font-size: 12px;
   color: #8a9d79;
   letter-spacing: 1px;
 }
@@ -1746,7 +1746,7 @@ dialog::backdrop {
   height: 41px;
   color: #d5dfc9;
   padding: 0 11px;
-  font-size: 11px;
+  font-size: 14px;
 }
 .modal input::placeholder {
   color: #607052;
@@ -1762,7 +1762,7 @@ dialog::backdrop {
   flex-direction: column;
   gap: 10px;
   margin: 14px 0 24px;
-  font-size: 10px;
+  font-size: 12px;
   color: #8fa17d;
 }
 .setup-help a {
@@ -1778,7 +1778,7 @@ dialog::backdrop {
   background: #202b1b;
   padding: 9px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   word-break: break-all;
 }
 .text-button {
@@ -1786,7 +1786,7 @@ dialog::backdrop {
   align-items: center;
   gap: 6px;
   color: #acc58e;
-  font-size: 10px;
+  font-size: 12px;
   padding: 0;
   text-align: left;
 }
@@ -1801,14 +1801,14 @@ dialog::backdrop {
   margin-top: 22px;
   border-top: 1px solid #303c27;
   color: #8a9f77;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
 }
 .privacy-note svg {
   margin-top: 2px;
 }
 .privacy-note code {
-  font-size: 9px;
+  font-size: 12px;
   color: #b0c697;
 }
 .form-row {
@@ -1826,7 +1826,7 @@ fieldset:disabled {
 }
 .field-hint {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.8;
   color: #839a6e;
   margin-top: 7px;
@@ -1835,7 +1835,7 @@ fieldset:disabled {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  font-size: 11px;
+  font-size: 14px;
   margin: 22px 0;
 }
 .checkbox-label strong {
@@ -1845,7 +1845,7 @@ fieldset:disabled {
 }
 .checkbox-label small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: #91a47b;
   margin-top: 6px;
   line-height: 1.8;
@@ -1866,7 +1866,7 @@ fieldset:disabled {
   color: #8fa876;
 }
 .brand.small {
-  font-size: 14px;
+  font-size: 16px;
 }
 .brand.small .brand-icon {
   width: 24px;
@@ -1877,7 +1877,7 @@ fieldset:disabled {
   width: 14px;
 }
 .brand.small .brand-slashes {
-  font-size: 14px;
+  font-size: 16px;
   margin-right: 2px;
 }
 .brand.small small {
@@ -1886,7 +1886,7 @@ fieldset:disabled {
 .overlay-mini-preview > div > span {
   display: block;
   margin-top: 12px;
-  font-size: 13px;
+  font-size: 16px;
   color: #b1c79d;
 }
 .preview-bars {
@@ -1912,7 +1912,7 @@ fieldset:disabled {
 .copy-field > input {
   padding-right: 42px !important;
   font-family: var(--mono);
-  font-size: 9px !important;
+  font-size: 12px !important;
 }
 .copy-field > button {
   position: absolute;
@@ -1924,7 +1924,7 @@ fieldset:disabled {
   justify-content: space-between;
   margin: 15px 0;
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: 12px;
   letter-spacing: 0.5px;
   color: #8b9e7b;
   gap: 12px;
@@ -1932,7 +1932,7 @@ fieldset:disabled {
 .overlay-specs strong {
   display: block;
   font-family: 'DM Sans Variable', sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   color: #c1d1b0;
   margin-top: 6px;
   font-weight: 450;
@@ -1944,7 +1944,7 @@ fieldset:disabled {
   background: #37281e;
   padding: 10px;
   border-radius: 5px;
-  font-size: 11px;
+  font-size: 14px;
   margin-top: 17px;
 }
 .obs-root {
@@ -1976,10 +1976,10 @@ fieldset:disabled {
   margin-left: auto;
   color: var(--lime);
   font-family: var(--mono);
-  font-size: 22px;
+  font-size: 24px;
 }
 .obs-top .tag {
-  font-size: 9px;
+  font-size: 12px;
 }
 .obs-body {
   display: grid;
@@ -2002,7 +2002,7 @@ fieldset:disabled {
   padding: 25px 28px;
 }
 .obs-info .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
   color: #a4bf8e;
 }
 .obs-info h1 {
@@ -2012,7 +2012,7 @@ fieldset:disabled {
   margin: 10px 0;
 }
 .obs-info p {
-  font-size: 13px;
+  font-size: 16px;
   color: #a6bb92;
   line-height: 1.7;
   margin: 0 0 15px;
@@ -2023,16 +2023,16 @@ fieldset:disabled {
   align-items: center;
   gap: 8px;
   margin: 14px 0;
-  font-size: 13px;
+  font-size: 16px;
 }
 .obs-role code {
-  font-size: 15px;
+  font-size: 18px;
   color: #f0f6e7;
 }
 .obs-role > span:last-of-type {
   color: #91a67e;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 14px;
 }
 .obs-role .meter {
   grid-column: 1/-1;
@@ -2041,7 +2041,7 @@ fieldset:disabled {
 .obs-info > small {
   display: block;
   color: #a5bd8e;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
   margin-top: 17px;
 }
@@ -2053,7 +2053,7 @@ fieldset:disabled {
   background: #392d48;
   color: #d4b7f0;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.5px;
 }
 .obs-root.compact .obs-panel {
@@ -2069,13 +2069,13 @@ fieldset:disabled {
   gap: 10px;
 }
 .obs-root.compact .obs-top .tag {
-  font-size: 7px;
+  font-size: 12px;
 }
 .obs-root.compact .obs-top .mono {
-  font-size: 17px;
+  font-size: 20px;
 }
 .obs-root.compact .obs-welcome {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.8;
 }
 .obs-root.compact .obs-info {
@@ -2089,7 +2089,7 @@ fieldset:disabled {
   background: #4c2920;
   color: #ffcebb;
   padding: 12px;
-  font-size: 14px;
+  font-size: 16px;
   border-radius: 7px;
 }
 body:has(.obs-root) {
@@ -2140,7 +2140,7 @@ body:has(.obs-root) {
 }
 @media (min-width: 1600px) {
   :root {
-    font-size: 14px;
+    font-size: 16px;
   }
   .sidebar {
     width: 244px;
@@ -2164,82 +2164,82 @@ body:has(.obs-root) {
     padding: 24px;
   }
   .mission-card-header h2 {
-    font-size: 26px;
+    font-size: 30px;
   }
   .space-art {
     aspect-ratio: 2.05;
   }
   .panel-header h3 {
-    font-size: 12px;
+    font-size: 15px;
   }
   .role-card {
     padding: 23px;
   }
   .role-heading {
-    font-size: 10px;
+    font-size: 12px;
   }
   .role-progress strong {
-    font-size: 30px;
+    font-size: 34px;
   }
   .crew-row {
     padding: 10px 0;
   }
   .crew-row strong {
-    font-size: 11px;
+    font-size: 14px;
   }
   .crew-row small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .boarding-card {
     padding-top: 22px;
   }
   .boarding-card > p {
-    font-size: 11px;
+    font-size: 14px;
   }
   .boarding-card h3 {
-    font-size: 21px;
+    font-size: 24px;
   }
   .boarding-instruction {
     margin-top: 18px;
     padding: 13px;
   }
   .boarding-footer {
-    font-size: 8px;
+    font-size: 12px;
     padding: 13px 0;
   }
   .feed-row {
-    font-size: 10px;
+    font-size: 12px;
     min-height: 38px;
   }
   .rehearsal-card > p {
-    font-size: 11px;
+    font-size: 14px;
   }
   .simulation-buttons > .button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .autoplay-button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .empty-crew {
     height: 190px;
   }
   .empty-crew p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .empty-crew strong {
-    font-size: 12px;
+    font-size: 15px;
   }
   .page-heading h1 {
     font-size: 35px;
   }
   .page-heading p {
-    font-size: 13px;
+    font-size: 16px;
   }
   .button {
-    font-size: 11px;
+    font-size: 14px;
   }
   .mode-strip {
-    font-size: 11px;
+    font-size: 14px;
   }
 }
 @media (max-width: 1200px) {
@@ -2249,10 +2249,10 @@ body:has(.obs-root) {
     padding-right: 14px;
   }
   .brand {
-    font-size: 17px;
+    font-size: 20px;
   }
   .brand small {
-    font-size: 6px;
+    font-size: 12px;
   }
   .brand-icon {
     width: 29px;
@@ -2274,20 +2274,20 @@ body:has(.obs-root) {
     gap: 14px;
   }
   .page-heading h1 {
-    font-size: 28px;
+    font-size: 34px;
   }
   .heading-actions {
     gap: 6px;
   }
   .heading-actions .button {
-    font-size: 9px;
+    font-size: 12px;
     padding: 9px;
   }
   .space-art {
     aspect-ratio: 1.65;
   }
   .mission-card-header h2 {
-    font-size: 21px;
+    font-size: 24px;
   }
   .mission-card-header h2 .tag {
     display: none;
@@ -2299,7 +2299,7 @@ body:has(.obs-root) {
     padding: 16px 11px;
   }
   .role-heading {
-    font-size: 7px;
+    font-size: 12px;
     gap: 4px;
   }
   .role-icon svg {
@@ -2310,16 +2310,16 @@ body:has(.obs-root) {
     padding-left: 8px;
   }
   .transport-label {
-    font-size: 8px;
+    font-size: 12px;
   }
   .scene-badge {
-    font-size: 5px;
+    font-size: 12px;
   }
   .scene-coordinates {
-    font-size: 5px;
+    font-size: 12px;
   }
   .scene-bottom {
-    font-size: 5px;
+    font-size: 12px;
   }
   .role-count {
     display: none;
@@ -2328,7 +2328,7 @@ body:has(.obs-root) {
     padding: 16px 15px 0;
   }
   .boarding-card h3 {
-    font-size: 16px;
+    font-size: 18px;
   }
   .crew-list {
     min-height: 150px;
@@ -2346,24 +2346,24 @@ body:has(.obs-root) {
     gap: 10px;
   }
   .insight-strip > span {
-    font-size: 8px;
+    font-size: 12px;
   }
   .insight-strip p {
-    font-size: 7px;
+    font-size: 12px;
   }
   .plan-content {
     padding: 17px;
   }
   .plan-content h2 {
-    font-size: 21px;
+    font-size: 24px;
   }
   .plan-content p {
-    font-size: 10px;
+    font-size: 12px;
     min-height: 100px;
   }
   .plan-meta {
     gap: 9px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .plan-art {
     height: 170px;
@@ -2375,13 +2375,13 @@ body:has(.obs-root) {
     padding: 20px;
   }
   .recorder-hero h2 {
-    font-size: 26px;
+    font-size: 30px;
   }
   .guide-card {
     padding: 23px;
   }
   .guide-card h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
 }
 @media (max-width: 1000px) {
@@ -2404,7 +2404,7 @@ body:has(.obs-root) {
     align-self: stretch;
   }
   .heading-actions .button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .mission-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -2426,13 +2426,13 @@ body:has(.obs-root) {
     padding: 16px 0;
   }
   .crew-stats strong {
-    font-size: 25px;
+    font-size: 30px;
   }
   .crew-column .boarding-card {
     padding-top: 20px;
   }
   .boarding-card > p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .boarding-instruction {
     margin-top: 20px;
@@ -2444,7 +2444,7 @@ body:has(.obs-root) {
     grid-template-columns: minmax(0, 1fr) 255px;
   }
   .feed-row {
-    font-size: 8px;
+    font-size: 12px;
     gap: 7px;
   }
   .feed-row time {
@@ -2457,7 +2457,7 @@ body:has(.obs-root) {
     aspect-ratio: 2;
   }
   .role-heading {
-    font-size: 10px;
+    font-size: 12px;
   }
   .role-count {
     display: flex;
@@ -2466,25 +2466,25 @@ body:has(.obs-root) {
     padding: 18px;
   }
   .role-progress code {
-    font-size: 9px;
+    font-size: 12px;
   }
   .scene-badge {
-    font-size: 6px;
+    font-size: 12px;
   }
   .scene-bottom {
-    font-size: 6px;
+    font-size: 12px;
   }
   .scene-coordinates {
-    font-size: 6px;
+    font-size: 12px;
   }
   .transport-label {
-    font-size: 10px;
+    font-size: 12px;
   }
   .mission-card-header h2 .tag {
     display: inline-flex;
   }
   .mission-card-header .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
   }
   .plans-grid {
     grid-template-columns: 1fr;
@@ -2499,16 +2499,16 @@ body:has(.obs-root) {
   }
   .plan-content p {
     min-height: unset;
-    font-size: 11px;
+    font-size: 14px;
   }
   .plan-content h2 {
-    font-size: 24px;
+    font-size: 28px;
   }
   .plan-content > .button {
     width: auto;
   }
   .plan-meta {
-    font-size: 9px;
+    font-size: 12px;
     padding: 15px 0;
   }
   .guide-grid {
@@ -2521,20 +2521,20 @@ body:has(.obs-root) {
     padding: 25px;
   }
   .recorder-hero h2 {
-    font-size: 24px;
+    font-size: 28px;
   }
   .recorder-symbol {
     display: none;
   }
   .page-footer > span:last-child {
-    font-size: 5px;
+    font-size: 12px;
     letter-spacing: 0.5px;
   }
   .insight-strip {
     flex-wrap: wrap;
   }
   .insight-strip p {
-    font-size: 8px;
+    font-size: 12px;
     flex: 1;
     min-width: 200px;
   }
@@ -2584,7 +2584,7 @@ body:has(.obs-root) {
     gap: 13px;
   }
   .topbar .local-chip {
-    font-size: 6px;
+    font-size: 12px;
     letter-spacing: 0.7px;
   }
   .topbar .header-divider {
@@ -2594,22 +2594,22 @@ body:has(.obs-root) {
     padding: 25px 18px 0;
   }
   .page-heading h1 {
-    font-size: 28px;
+    font-size: 34px;
   }
   .page-heading p {
-    font-size: 11px;
+    font-size: 14px;
   }
   .page-heading .eyebrow {
-    font-size: 7px;
+    font-size: 12px;
   }
   .mode-strip {
     gap: 10px;
     padding: 10px;
-    font-size: 9px;
+    font-size: 12px;
     align-items: flex-start;
   }
   .mode-strip > .tag {
-    font-size: 6px;
+    font-size: 12px;
     margin-top: 2px;
     padding: 5px;
   }
@@ -2618,7 +2618,7 @@ body:has(.obs-root) {
   }
   .mode-strip > button {
     white-space: nowrap;
-    font-size: 8px;
+    font-size: 12px;
     margin-top: 3px;
   }
   .crew-column {
@@ -2631,70 +2631,70 @@ body:has(.obs-root) {
     min-height: 210px;
   }
   .feed-row {
-    font-size: 9px;
+    font-size: 12px;
     min-height: 36px;
   }
   .feed-row time {
     display: block;
-    font-size: 6px;
+    font-size: 12px;
   }
   .rehearsal-card > p {
-    font-size: 11px;
+    font-size: 14px;
   }
   .simulation-buttons > .button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .autoplay-button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .autoplay-button > span {
-    font-size: 7px;
+    font-size: 12px;
   }
   .role-card {
     padding: 16px 13px;
   }
   .role-heading {
-    font-size: 8px;
+    font-size: 12px;
   }
   .role-progress strong {
-    font-size: 25px;
+    font-size: 30px;
   }
   .role-progress code {
-    font-size: 7px;
+    font-size: 12px;
   }
   .role-count {
     display: none;
   }
   .mission-card-header h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
   .mission-card-header .eyebrow {
-    font-size: 6px;
+    font-size: 12px;
   }
   .space-art {
     aspect-ratio: 1.9;
   }
   .scene-bottom {
-    font-size: 5px;
+    font-size: 12px;
   }
   .transport-label {
-    font-size: 9px;
+    font-size: 12px;
   }
   .transport-time {
-    font-size: 9px;
+    font-size: 12px;
     margin-left: 5px;
   }
   .mission-transport {
     padding: 13px 14px;
   }
   .mission-transport .button {
-    font-size: 8px;
+    font-size: 12px;
   }
   .boarding-card h3 {
-    font-size: 16px;
+    font-size: 18px;
   }
   .boarding-card .eyebrow {
-    font-size: 5px;
+    font-size: 12px;
     letter-spacing: 0.8px;
   }
   .boarding-icon {
@@ -2705,14 +2705,14 @@ body:has(.obs-root) {
     width: 15px;
   }
   .boarding-card > p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .boarding-instruction > strong {
-    font-size: 8px;
+    font-size: 12px;
     line-height: 1.5;
   }
   .boarding-instruction > span {
-    font-size: 5px;
+    font-size: 12px;
     line-height: 1.8;
   }
   .boarding-instruction > div {
@@ -2720,14 +2720,14 @@ body:has(.obs-root) {
     gap: 8px;
   }
   .boarding-instruction code {
-    font-size: 7px;
+    font-size: 12px;
   }
   .boarding-footer {
-    font-size: 6px;
+    font-size: 12px;
     line-height: 1.8;
   }
   .crew-card .panel-header h3 {
-    font-size: 10px;
+    font-size: 12px;
   }
   .crew-stats {
     margin: 0 13px;
@@ -2736,7 +2736,7 @@ body:has(.obs-root) {
     padding-left: 13px;
   }
   .crew-stats span {
-    font-size: 7px;
+    font-size: 12px;
   }
   .crew-card .panel-header {
     padding: 15px 12px;
@@ -2745,7 +2745,7 @@ body:has(.obs-root) {
     padding: 4px 12px;
   }
   .crew-card-foot {
-    font-size: 6px;
+    font-size: 12px;
     padding: 12px 10px;
   }
   .crew-card-foot > .status-dot {
@@ -2753,17 +2753,17 @@ body:has(.obs-root) {
     height: 3px;
   }
   .empty-crew p {
-    font-size: 7px;
+    font-size: 12px;
   }
   .empty-crew strong {
-    font-size: 9px;
+    font-size: 12px;
   }
   .crew-row strong {
-    font-size: 8px;
+    font-size: 12px;
     max-width: 80px;
   }
   .crew-row small {
-    font-size: 6px;
+    font-size: 12px;
   }
   .crew-row small span {
     display: none;
@@ -2771,7 +2771,7 @@ body:has(.obs-root) {
   .crew-avatar {
     width: 23px;
     height: 23px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .crew-row {
     gap: 7px;
@@ -2784,7 +2784,7 @@ body:has(.obs-root) {
     line-height: 1.8;
     display: block;
     text-align: right;
-    font-size: 5px;
+    font-size: 12px;
   }
   .page-footer > span:last-child > span {
     padding: 0 4px;
@@ -2798,14 +2798,14 @@ body:has(.obs-root) {
   }
   .toast {
     left: 50%;
-    font-size: 10px;
+    font-size: 12px;
     width: max-content;
   }
   .recorder-hero h2 {
-    font-size: 25px;
+    font-size: 30px;
   }
   .recorder-hero p {
-    font-size: 11px;
+    font-size: 14px;
   }
   .recorder-stats {
     gap: 12px;
@@ -2814,10 +2814,10 @@ body:has(.obs-root) {
     padding: 20px;
   }
   .metric-card strong {
-    font-size: 30px;
+    font-size: 34px;
   }
   .metric-card span {
-    font-size: 10px;
+    font-size: 12px;
   }
   .plan-card {
     grid-template-columns: 1fr;
@@ -2833,22 +2833,22 @@ body:has(.obs-root) {
     width: 100%;
   }
   .plan-content .eyebrow {
-    font-size: 7px;
+    font-size: 12px;
   }
   .modal {
     padding: 26px 22px;
   }
   .modal h2 {
-    font-size: 26px;
+    font-size: 30px;
   }
   .modal .eyebrow {
-    font-size: 7px;
+    font-size: 12px;
   }
   .overlay-specs {
-    font-size: 6px;
+    font-size: 12px;
   }
   .overlay-specs strong {
-    font-size: 10px;
+    font-size: 12px;
   }
   .guide-card {
     padding: 23px;
@@ -2857,13 +2857,13 @@ body:has(.obs-root) {
     padding: 23px;
   }
   .story-card h3 {
-    font-size: 21px;
+    font-size: 24px;
   }
   .story-card > p {
-    font-size: 11px;
+    font-size: 14px;
   }
   .info-box {
-    font-size: 10px;
+    font-size: 12px;
   }
   .obs-root {
     padding: 20px;
@@ -2882,26 +2882,26 @@ body:has(.obs-root) {
     padding: 15px;
   }
   .obs-top .mono {
-    font-size: 16px;
+    font-size: 18px;
   }
   .obs-top .tag {
-    font-size: 6px;
+    font-size: 12px;
   }
   .obs-welcome {
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.8;
   }
   .obs-info h1 {
-    font-size: 26px;
+    font-size: 30px;
   }
   .obs-info p {
-    font-size: 11px;
+    font-size: 14px;
   }
   .obs-role {
-    font-size: 12px;
+    font-size: 15px;
   }
   .obs-role code {
-    font-size: 13px;
+    font-size: 16px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2922,7 +2922,7 @@ body:has(.obs-root) {
 .mission-header-actions .button {
   padding: 7px 10px;
   min-height: 29px;
-  font-size: 9px;
+  font-size: 12px;
 }
 .relay-chain {
   display: flex;
@@ -2936,7 +2936,7 @@ body:has(.obs-root) {
   border: 1px solid #313b29;
   border-radius: 4px;
   color: #77876a;
-  font-size: 8px;
+  font-size: 12px;
   white-space: nowrap;
 }
 .relay-chain > span.filled {
@@ -2961,11 +2961,11 @@ body:has(.obs-root) {
 }
 @media (max-width: 740px) {
   .mission-card-header h2 {
-    font-size: 20px;
+    font-size: 22px;
     gap: 7px;
   }
   .mission-card-header h2 .tag {
-    font-size: 5px;
+    font-size: 12px;
     padding: 4px;
   }
   .mission-card-header {
@@ -2975,7 +2975,7 @@ body:has(.obs-root) {
     gap: 5px;
   }
   .mission-header-actions .button {
-    font-size: 8px;
+    font-size: 12px;
     padding: 6px 8px;
   }
   .insight-strip > p {

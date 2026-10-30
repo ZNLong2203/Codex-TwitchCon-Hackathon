@@ -1,3 +1,4 @@
+import type { DirectorCandidate, DirectiveRuntime } from './director.js';
 export const roles = ['scout', 'engineer', 'pilot'] as const;
 export type Role = (typeof roles)[number];
 export const roleInfo = {
@@ -62,7 +63,7 @@ export type Settings = {
 export type FeedItem = {
   id: string;
   at: number;
-  kind: 'action' | 'system' | 'raid' | 'combo';
+  kind: 'action' | 'system' | 'raid' | 'combo' | 'director';
   name: string;
   text: string;
   role?: Role;
@@ -85,8 +86,11 @@ export type MissionState = {
   welcomed: number;
   raid: { name: string; viewers: number; at: number; until: number } | null;
   comboWindow: { role: Role; userId: string; at: number }[];
+  director: DirectorCandidate | null;
+  directive: DirectiveRuntime | null;
 };
-export type MissionView = Omit<MissionState, 'players' | 'comboWindow'> & {
+export type MissionView = Omit<MissionState, 'players' | 'comboWindow' | 'directive'> & {
+  directive: (Omit<DirectiveRuntime, 'contributors'> & { contributors: number }) | null;
   crewCount: number;
   crew: (Player & { id: string })[];
   roleCounts: Record<Role, number>;

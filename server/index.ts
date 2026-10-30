@@ -25,7 +25,14 @@ if (production) {
 }
 const handler: ErrorRequestHandler = (error, _req, res, _next) => {
   if (error instanceof z.ZodError) {
-    res.status(400).json({ error: 'Invalid request. Check the fields and try again.' });
+    const fields = [
+      ...new Set(error.issues.map((issue) => issue.path.join('.')).filter(Boolean)),
+    ].slice(0, 4);
+    res.status(400).json({
+      error: fields.length
+        ? `Please check these fields: ${fields.join(', ')}.`
+        : 'The request is missing required fields. Reload this form and try again.',
+    });
     return;
   }
   if (error instanceof SyntaxError) {

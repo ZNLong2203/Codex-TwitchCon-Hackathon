@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
+import type { DirectorCandidate } from '../shared/director.js';
+import { directorCandidateSchema, directiveRuntimeSchema } from './director-schema.js';
 
 import {
   roles,
@@ -56,6 +58,8 @@ export class MissionEngine {
       welcomed: 0,
       raid: null,
       comboWindow: [],
+      director: null,
+      directive: null,
     };
   }
   private log(kind: FeedItem['kind'], name: string, text: string, extras: Partial<FeedItem> = {}) {
@@ -99,7 +103,7 @@ export class MissionEngine {
             z.object({
               id: z.string(),
               at: z.number(),
-              kind: z.enum(['action', 'system', 'raid', 'combo']),
+              kind: z.enum(['action', 'system', 'raid', 'combo', 'director']),
               name: z.string(),
               text: z.string(),
               role: z.enum(roles).optional(),
@@ -110,6 +114,8 @@ export class MissionEngine {
         actions: z.number(),
         combos: z.number(),
         welcomed: z.number(),
+        director: directorCandidateSchema.nullable().optional().default(null),
+        directive: directiveRuntimeSchema.nullable().optional().default(null),
         raid: z
           .object({ name: z.string(), viewers: z.number(), at: z.number(), until: z.number() })
           .nullable(),
@@ -123,6 +129,7 @@ export class MissionEngine {
     if (action === 'start' && this.state.status === 'ready') {
       this.state.status = 'active';
       this.state.startedAt = this.clock();
+      if (this.state.directive?.status === 'queued') this.state.directive.status = 'active';
       this.log('system', 'Mission control', 'Rescue initiated. All hands, stations ready.');
     } else if (action === 'pause' && this.state.status === 'active') {
       this.tick();
@@ -130,6 +137,8 @@ export class MissionEngine {
     } else if (action === 'resume' && this.state.status === 'paused') this.state.status = 'active';
     else if (action === 'end' && ['active', 'paused'].includes(this.state.status)) {
       this.state.status = 'ended';
+      if (this.state.directive && ['queued', 'active'].includes(this.state.directive.status))
+        this.state.directive.status = 'expired';
       this.log('system', 'Mission control', 'Mission ended by the captain. Flight recorder saved.');
     }
     this.lastTick = this.clock();
@@ -137,12 +146,21 @@ export class MissionEngine {
   tick() {
     const now = this.clock();
     if (this.state.status === 'active') {
+      const elapsed = Math.max(0, now - this.lastTick);
+      if (this.state.directive?.status === 'active') {
+        this.state.directive.remainingMs = Math.max(0, this.state.directive.remainingMs - elapsed);
+        if (!this.state.directive.remainingMs) {
+          this.state.directive.status = 'expired';
+          this.log('director', 'Directive window closed', 'No penalty. The main rescue continues.');
+        }
+      }
       this.state.remainingMs = Math.max(
         0,
         this.state.remainingMs - Math.max(0, now - this.lastTick),
       );
       if (!this.state.remainingMs) {
         this.state.status = 'ended';
+        if (this.state.directive?.status === 'active') this.state.directive.status = 'expired';
         this.log(
           'system',
           'Mission control',
@@ -211,8 +229,31 @@ export class MissionEngine {
       this.state.comboWindow = [];
       this.log('combo', 'Relay synchronized', 'Three roles. Three people. +2 to every system.');
     }
+    const directive = this.state.directive;
+    const objective = this.state.director?.brief.directive;
+    if (
+      directive?.status === 'active' &&
+      objective?.focusRole === role &&
+      !directive.contributors.includes(key)
+    ) {
+      directive.contributors.push(key);
+      if (directive.contributors.length >= objective.targetContributors) {
+        directive.status = 'complete';
+        for (const r of roles)
+          this.state.systems[r] = Math.min(
+            this.state.settings.goal,
+            this.state.systems[r] + objective.rewardPoints,
+          );
+        this.log(
+          'director',
+          'Rescue directive complete',
+          `${directive.contributors.length} different crew members coordinated. +${objective.rewardPoints} to every system.`,
+        );
+      }
+    }
     if (roles.every((r) => this.state.systems[r] >= this.state.settings.goal)) {
       this.state.status = 'complete';
+      if (this.state.directive?.status === 'active') this.state.directive.status = 'expired';
       this.log(
         'system',
         'Signal delivered',
@@ -238,8 +279,35 @@ export class MissionEngine {
     );
     return true;
   }
+  approveDirector(raw: DirectorCandidate) {
+    const candidate = directorCandidateSchema.parse(raw);
+    if (candidate.missionId !== this.state.id)
+      throw new Error('This draft belongs to a previous mission. Generate a fresh draft.');
+    if (candidate.id === this.state.director?.id)
+      throw new Error('This draft was already published. Generate a new objective.');
+    if (!['ready', 'active', 'paused'].includes(this.state.status))
+      throw new Error('Load a new flight before approving a director draft.');
+    if (candidate.source === 'sample' && this.state.source !== 'rehearsal')
+      throw new Error('Sample directives cannot be published to Twitch missions.');
+    if (this.state.directive && ['queued', 'active'].includes(this.state.directive.status))
+      throw new Error('Finish or let the current directive expire before publishing another.');
+    this.tick();
+    if (this.state.status === 'ended')
+      throw new Error('The mission ended before this draft could be approved.');
+    this.state.director = candidate;
+    this.state.directive = {
+      status: this.state.status === 'ready' ? 'queued' : 'active',
+      contributors: [],
+      remainingMs: candidate.brief.directive.durationSeconds * 1000,
+    };
+    this.log(
+      'director',
+      candidate.source === 'gemini' ? 'AI director · approved' : 'Sample director · approved',
+      candidate.brief.directive.title,
+    );
+  }
   view(): MissionView {
-    const { players, comboWindow: _, ...rest } = this.state;
+    const { players, comboWindow: _, directive, ...rest } = this.state;
     const values = Object.entries(players);
     const roleCounts = { scout: 0, engineer: 0, pilot: 0 };
     for (const [, p] of values) roleCounts[p.role]++;
@@ -255,6 +323,7 @@ export class MissionEngine {
             : `${mission.name}: ${mission.description} Fill all three systems to complete the rescue. ${roleInfo[weakest].system} needs you most — type ${roleInfo[weakest].command} in chat. A scout, engineer and pilot acting within 15 seconds creates a relay bonus.`;
     return {
       ...rest,
+      directive: directive ? { ...directive, contributors: directive.contributors.length } : null,
       crewCount: values.length,
       crew: values.slice(-80).map(([id, p]) => ({ id, ...p })),
       roleCounts,

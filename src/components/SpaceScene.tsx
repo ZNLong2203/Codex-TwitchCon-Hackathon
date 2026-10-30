@@ -231,7 +231,7 @@ export function SpaceScene({ mission, now }: { mission: MissionView; now: number
         <span>
           <Crosshair size={12} /> SECTOR 07 / KEPLER
         </span>
-        <span>LOCAL RENDER · ZERO AI CALLS</span>
+        <span>LIVE CREW · SHARED RESCUE</span>
       </div>
       {complete && (
         <div className="rescue-celebration">

@@ -50,10 +50,19 @@ import {
 } from '../shared/contracts';
 import type { Connection } from '../server/twitch';
 import './styles.css';
+import './readability.css';
 import { Brand, TwitchIcon } from './components/Brand';
 import { SpaceScene } from './components/SpaceScene';
+import { AIDirectorPanel, AISettings, ActiveDirective } from './components/AIDirector';
+import type { DirectorView } from '../shared/director';
 
-type State = { mission: MissionView; connection: Connection; demoRunning: boolean; now: number };
+type State = {
+  mission: MissionView;
+  connection: Connection;
+  demoRunning: boolean;
+  now: number;
+  ai: DirectorView;
+};
 type Config = { clientId: string; overlayUrl: string };
 type Tab = 'control' | 'plans' | 'recorder' | 'guide';
 const roleIcons = { scout: ScanLine, engineer: ShieldCheck, pilot: Zap };
@@ -86,11 +95,20 @@ function App() {
   const [state, setState] = useState<State | null>(null);
   const [config, setConfig] = useState<Config>({ clientId: '', overlayUrl: '' });
   const [tab, setTab] = useState<Tab>('control');
-  const [modal, setModal] = useState<'connect' | 'settings' | 'overlay' | null>(null);
+  const [modal, setModal] = useState<'connect' | 'settings' | 'overlay' | 'ai' | 'confirm' | null>(
+    null,
+  );
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [streamError, setStreamError] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiError, setAiError] = useState('');
+  const [confirmation, setConfirmation] = useState<{
+    title: string;
+    message: string;
+    action: string;
+  } | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
   const [clientId, setClientId] = useState(localStorage.getItem('rr_client_id') ?? '');
   const [form, setForm] = useState<Settings | null>(null);
@@ -112,7 +130,21 @@ function App() {
         setStreamError(true);
       }
     };
-    events.onerror = () => setStreamError(true);
+    let lastRecovery = 0;
+    events.onerror = () => {
+      setStreamError(true);
+      if (!overlay && Date.now() - lastRecovery > 10_000) {
+        lastRecovery = Date.now();
+        // Re-establish a local operator session after a server restart without
+        // clearing a form the streamer may be filling in.
+        void fetch('/', { cache: 'no-store' })
+          .then((response) => (response.ok ? api('config') : Promise.reject()))
+          .then(setConfig)
+          .catch(() => {
+            /* The explicit reload action stays available while offline. */
+          });
+      }
+    };
     if (!overlay) {
       void api('config')
         .then((c: Config) => {
@@ -178,6 +210,30 @@ function App() {
       setBusy(false);
     }
   }
+  async function aiAction(path: string, body: unknown) {
+    setAiBusy(true);
+    setAiError('');
+    try {
+      setState(await api(path, body));
+      return true;
+    } catch (e) {
+      setAiError(e instanceof Error ? e.message : 'The AI request failed.');
+      return false;
+    } finally {
+      setAiBusy(false);
+    }
+  }
+  function confirmControl(action: 'end' | 'reset') {
+    setConfirmation({
+      action,
+      title: action === 'end' ? 'End this rescue?' : 'Start a fresh flight?',
+      message:
+        action === 'end'
+          ? 'The crew will stop contributing. You can export this mission’s flight recorder before starting another.'
+          : 'This clears the current crew, progress and approved AI story. Export the flight recorder first if you want to keep it.',
+    });
+    setModal('confirm');
+  }
   function openSettings() {
     if (!state) return;
     setForm({ ...state.mission.settings });
@@ -222,10 +278,23 @@ function App() {
             ? 'Connection lost. Make sure RAID//RELAY is running on this computer.'
             : 'Establishing your orbital link…'}
         </p>
+        {streamError && (
+          <a className="button secondary" href={location.href}>
+            Reload dashboard
+          </a>
+        )}
       </div>
     );
   const { mission: m, connection, now } = state;
-  const currentMission = missions.find((x) => x.id === m.settings.missionId)!;
+  const flightPlan = missions.find((x) => x.id === m.settings.missionId)!;
+  const currentMission = m.director
+    ? {
+        ...flightPlan,
+        name: m.director.brief.title,
+        location: m.director.brief.location,
+        description: m.director.brief.briefing,
+      }
+    : flightPlan;
   const board = m.status === 'active' && m.raid && now < m.raid.until;
   const running = m.status === 'active';
   const locked = running || m.status === 'paused';
@@ -259,11 +328,17 @@ function App() {
                 {m.status === 'complete'
                   ? `Rescue complete. ${m.crewCount} people brought them home together.`
                   : m.status !== 'active'
-                    ? labels[m.status]
+                    ? m.status === 'paused'
+                      ? 'Crew signals resume when the captain resumes the mission.'
+                      : m.status === 'ended'
+                        ? 'Flight recorder ready. Thank you for taking part.'
+                        : 'Choose a role. The rescue begins when your captain launches.'
                     : board
-                      ? `Welcome, ${m.raid!.name}'s community. Pick a role and join the rescue.`
+                      ? (m.director?.brief.welcome ??
+                        `Welcome, ${m.raid!.name}'s community. Pick a role and join the rescue.`)
                       : 'Three roles. One rescue. Type a command in chat.'}
               </p>
+              <ActiveDirective mission={m} />
               {roles.map((r) => (
                 <div className="obs-role" key={r}>
                   <span style={{ color: roleInfo[r].color }}>{roleInfo[r].name}</span>
@@ -394,8 +469,10 @@ function App() {
         <main>
           {streamError && (
             <div className="error-banner" role="alert">
-              <Wifi size={16} /> Dashboard connection lost. Reconnecting; displayed data may be
-              stale.
+              <Wifi size={16} /> Dashboard connection lost. Displayed data may be stale.{' '}
+              <a className="button secondary" href="/">
+                Reload dashboard
+              </a>
             </div>
           )}
           {error && (
@@ -439,6 +516,9 @@ function App() {
               </p>
             </div>
             <div className="heading-actions">
+              <button className="button secondary" onClick={() => setModal('ai')}>
+                <Sparkles size={18} /> AI settings
+              </button>
               <button className="button secondary" onClick={() => setModal('overlay')}>
                 <RadioTower size={15} /> OBS overlay <ArrowUpRight size={13} />
               </button>
@@ -468,12 +548,23 @@ function App() {
                   {rehearsal ? 'Go live' : 'Change mode'} <ArrowRight size={13} />
                 </button>
               </div>
+              {state.ai && (
+                <AIDirectorPanel
+                  mission={m}
+                  ai={state.ai}
+                  busy={aiBusy}
+                  now={now}
+                  error={aiError}
+                  onAction={aiAction}
+                  onSettings={() => setModal('ai')}
+                />
+              )}
               <div className="mission-grid">
                 <section className="mission-card card">
                   <div className="mission-card-header">
                     <div>
                       <span className="eyebrow">
-                        MISSION 0{missions.indexOf(currentMission) + 1} <span>/</span>{' '}
+                        MISSION 0{missions.indexOf(flightPlan) + 1} <span>/</span>{' '}
                         {currentMission.location}
                       </span>
                       <h2>
@@ -500,6 +591,17 @@ function App() {
                     </div>
                   </div>
                   <SpaceScene mission={m} now={now} />
+                  {m.director && (
+                    <div className="approved-brief">
+                      <span className="eyebrow">
+                        {m.director.source === 'gemini'
+                          ? 'AI TRANSMISSION · APPROVED'
+                          : 'LOCAL SAMPLE STORY'}
+                      </span>
+                      <p>{m.director.brief.briefing}</p>
+                    </div>
+                  )}
+                  <ActiveDirective mission={m} />
                   <div className="mission-transport">
                     <div className="transport-label">
                       <span className={`status-dot ${running ? 'pulse' : 'muted'}`} />
@@ -542,7 +644,7 @@ function App() {
                           className="icon-button bordered"
                           aria-label="End mission"
                           disabled={busy}
-                          onClick={() => act('control', { action: 'end' })}
+                          onClick={() => confirmControl('end')}
                         >
                           <Square size={13} />
                         </button>
@@ -551,7 +653,7 @@ function App() {
                         <button
                           className="button primary"
                           disabled={busy}
-                          onClick={() => act('control', { action: 'reset' })}
+                          onClick={() => confirmControl('reset')}
                         >
                           <RotateCcw size={14} /> New flight
                         </button>
@@ -676,7 +778,8 @@ function App() {
                     <h3>{board ? `Hello, ${m.raid!.name}'s crew.` : 'New to the orbit?'}</h3>
                     <p>
                       {board
-                        ? `${m.raid!.viewers} viewers arrived. Everyone can jump in — no lore homework required.`
+                        ? (m.director?.brief.welcome ??
+                          `${m.raid!.viewers} viewers arrived. Everyone can jump in — no lore homework required.`)
                         : 'When a raid arrives, give the new crew a way in, not a wall of context.'}
                     </p>
                     <div className="boarding-instruction">
@@ -971,7 +1074,9 @@ function App() {
                     ? `${m.crewCount} people, one shared signal.`
                     : 'Every story starts with a first signal.'}
                 </h3>
-                <p>{m.catchup}</p>
+                <p>
+                  {m.status === 'complete' && m.director ? m.director.brief.conclusion : m.catchup}
+                </p>
                 <div className="info-box">
                   <LockKeyhole size={16} />
                   <p>
@@ -1070,7 +1175,7 @@ function App() {
               <span className="status-dot" /> All systems local. All moments shared.
             </span>
             <span>
-              NO RUNTIME AI COST <span>·</span> BUILT WITH OPENAI CODEX
+              AI DIRECTOR · GEMINI <span>·</span> BUILT WITH OPENAI CODEX
             </span>
           </footer>
         </main>
@@ -1096,6 +1201,55 @@ function App() {
           >
             <X size={20} />
           </button>
+          {modal === 'ai' && state.ai && (
+            <>
+              <AISettings
+                ai={state.ai}
+                busy={aiBusy}
+                onAction={aiAction}
+                onSaved={() => {
+                  setModal(null);
+                  setNotice(
+                    'AI settings updated. Generate your first mission to verify Gemini access.',
+                  );
+                }}
+              />
+              {aiError && (
+                <p className="modal-error" role="alert">
+                  {aiError}
+                </p>
+              )}
+            </>
+          )}
+          {modal === 'confirm' && confirmation && (
+            <>
+              <span className="modal-symbol">
+                <Flag size={24} />
+              </span>
+              <h2>{confirmation.title}</h2>
+              <p>{confirmation.message}</p>
+              <div className="confirm-actions">
+                <button className="button secondary" onClick={() => setModal(null)}>
+                  Keep this flight
+                </button>
+                <a className="button secondary" href="/api/recorder" download>
+                  <ArrowDownToLine size={17} /> Export recorder
+                </a>
+                <button
+                  className="button primary"
+                  disabled={busy}
+                  onClick={async () => {
+                    if (await act('control', { action: confirmation.action })) {
+                      setModal(null);
+                      setConfirmation(null);
+                    }
+                  }}
+                >
+                  {confirmation.action === 'end' ? 'End mission' : 'Start new flight'}
+                </button>
+              </div>
+            </>
+          )}
           {modal === 'connect' && (
             <>
               <span className="modal-symbol">
@@ -1331,7 +1485,7 @@ function App() {
                 <Orbit size={85} strokeWidth={0.8} />
                 <div>
                   <Brand small />
-                  <span>The quiet signal</span>
+                  <span>{currentMission.name}</span>
                   <div className="preview-bars">
                     <i />
                     <i />
