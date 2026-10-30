@@ -69,7 +69,7 @@ End any rehearsal before connecting. A successful connection loads a fresh Twitc
 - Local atomic mission snapshots; interrupted active missions restore paused. JSON flight-recorder export.
 - Readable 16px body text, 44–48px controls, responsive layouts, confirmation/export before end/reset, keyboard controls, native dialog focus handling and reduced-motion support.
 
-**Verification status:** automated engine/API/adapter fixture tests and local browser rehearsal have been exercised. Live Twitch OAuth, real chat/raids, network migration, and OBS compositing still require validation with an authorized broadcaster and OBS. The project is not yet a completed hackathon submission. See [test evidence and remaining checks](docs/testing.md).
+**Verification status:** automated engine/API/adapter/director tests and local browser rehearsal have been exercised. A [real Gemini 3.8 Flash generation](docs/live-ai-verification.md) succeeded without fallback, and its reviewed objective completed through three distinct simulated scout contributions. Live Twitch OAuth, real chat/raids, network migration, and OBS compositing still require validation with an authorized broadcaster and OBS. The project is not yet a completed hackathon submission. See [test evidence and remaining checks](docs/testing.md).
 
 ## Cost and data
 

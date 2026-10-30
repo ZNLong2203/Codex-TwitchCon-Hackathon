@@ -23,7 +23,7 @@ The automated engine/API/adapter/director tests cover:
 
 The adapter fixtures validate ingestion, not Twitch server acceptance of OAuth scopes/subscriptions or network reconnect behavior.
 
-Additional runtime AI tests cover primary model selection and thinking settings, eligible fallback and actual-model provenance, no fallback on credentials/safety errors, budget/cooldown/concurrency, schema rejection, stale response discard, key normalization, hidden operator drafts, objective uniqueness/timers/rewards and approved-state recovery. Provider responses in automated tests are injected fixtures; they are not claims of a live Gemini call.
+Additional runtime AI tests cover primary model selection and thinking settings, eligible fallback and actual-model provenance, no fallback on credentials/safety errors, budget/cooldown/concurrency, schema rejection, stale response discard, key normalization, hidden operator drafts, objective uniqueness/timers/rewards and approved-state recovery. Provider responses in automated tests are injected fixtures. A separate [live Gemini verification](live-ai-verification.md) succeeded using the owner's key: one 3.8 Flash call, no fallback, followed by reviewed publication and objective completion in rehearsal.
 
 ## Local browser walkthrough
 
@@ -42,7 +42,7 @@ Screenshots in `docs/images/` show this local rehearsal. They are not evidence o
 
 ## Required account/device checks before submission
 
-- [ ] Verify a real Gemini 3.8 Flash response with an authorized key, review its objective, publish it and demonstrate its gameplay effect. Check the UI reports the actual model.
+- [x] Verify a real Gemini 3.8 Flash response with an authorized key, review its objective, publish it and demonstrate its gameplay effect in rehearsal. The UI reported `gemini-3.8-flash`; three distinct simulated scouts completed the objective. See [evidence](live-ai-verification.md).
 - [ ] Register a public Twitch application and exact callback URI using [setup](twitch-setup.md).
 - [ ] Authorize as the broadcaster; verify both real EventSub subscriptions reach live status.
 - [ ] Show real Twitch commands changing dashboard and OBS. Three real accounts should generate a relay.
