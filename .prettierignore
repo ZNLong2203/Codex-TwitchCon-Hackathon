@@ -1,0 +1,6 @@
+node_modules/
+dist/
+private/
+package-lock.json
+docs/images/
+public/licenses/
