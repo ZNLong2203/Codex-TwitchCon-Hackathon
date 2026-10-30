@@ -17,4 +17,20 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - run: npm run test:production
+      - run: npm run format:check
       - run: npm audit --omit=dev --audit-level=high
+      - name: Upload verified production build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: raid-relay-production
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            dist/
+            scripts/start.mjs
+            package.json
+            package-lock.json
+            README.md
+            LICENSE
+            docs/

@@ -46,7 +46,7 @@ We built both rehearsal and live paths, with persistent simulation labels and se
 
 ## Accomplishments
 
-A complete three-act rehearsal loop, both route outcomes, original responsive orbital visuals, reviewed real Gemini 3.8 Flash generation, a real broadcaster connection with both EventSub subscriptions, local recovery and 57 automated tests. Real multi-person chat, raids, recovery under network failure and OBS compositing must be documented before claiming a fully verified live community run.
+A complete three-act rehearsal loop, both route outcomes, original responsive orbital visuals, reviewed real Gemini 3.8 Flash generation, a real broadcaster connection with both EventSub subscriptions, local recovery, 83 automated tests and a compiled-production smoke test. Real multi-person chat, raids, recovery under network failure and OBS compositing must be documented before claiming a fully verified live community run.
 
 ## What we learned
 

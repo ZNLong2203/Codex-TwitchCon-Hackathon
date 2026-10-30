@@ -9,10 +9,11 @@ npm ci
 npm test
 npm run check
 npm run build
+npm run test:production
 npm audit --omit=dev --audit-level=high
 ```
 
-**57 tests pass.** Engine/API/adapter/director coverage includes:
+**83 tests plus one compiled-production smoke test pass.** Engine/API/adapter/director coverage includes:
 
 - Three sequential acts, role locks, both winning route requirements/endings, editable one-account ballots, ties/timeouts, pause and recovery, per-act uniqueness, private-ID-free views and exports, required AI branches, and legacy snapshot migration.
 - Distinct-person classic relay scoring, prevention of solo role switching, exact 15-second expiry and system caps/completion.
@@ -22,7 +23,9 @@ npm audit --omit=dev --audit-level=high
 - Bounded feed/crew display, channel filtering, Shared Chat origin filtering, malformed payloads and actual documented EventSub notification shapes.
 - Same-origin operator access, missing operator authentication, DNS-rebinding host rejection, JSON export and Twitch/rehearsal separation.
 
-The adapter fixtures validate ingestion, not Twitch server acceptance of OAuth scopes/subscriptions or network reconnect behavior.
+The transport suite uses injected fake HTTP/WebSocket connections and Node's controlled timer API. It covers two-subscription setup, transient 4006 recovery, requested handoff without re-subscribing, old-socket close during handoff, failed handoff fallback, ignored retired sockets and late HTTP responses, welcome/keepalive timeouts, authorization/scope/expiry failures, 401/429 subscription rejection, hourly revocation, bounded retries and timer cancellation. Invalid reconnect URLs cannot throw through the socket handler or redirect credentials. Unknown provider errors are replaced with safe messages.
+
+These are deterministic protocol tests, not live Twitch server acceptance or real network-failure evidence. The separate compiled-production test starts the actual `npm start` launcher in an isolated temporary directory, serves built assets, completes a simulated drift rescue, checks operator/overlay separation, and restarts to verify persisted pause, stale-cookie rejection and display-key rotation. It uses no real credentials and does not modify the developer's active session or snapshot.
 
 Additional runtime AI tests cover primary model selection and thinking settings, eligible fallback and actual-model provenance, no fallback on credentials/safety errors, budget/cooldown/concurrency, schema rejection, stale response discard, key normalization, hidden operator drafts, objective uniqueness/timers/rewards and approved-state recovery. Provider responses in automated tests are injected fixtures. Separate [live Gemini verification](live-ai-verification.md) covers the original classic objective and the new three-act script: the latter succeeded in one primary 3.8 Flash call with no fallback, then was reviewed and published into a Twitch mission.
 

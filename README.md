@@ -8,6 +8,8 @@ Built with OpenAI Codex for the [Codex x TwitchCon Hackathon](https://twitchcon-
 
 ![Community route vote in labeled rehearsal](docs/images/expedition-route-vote.png)
 
+For an account-free review, start with [Reviewer quick start](docs/judge-quickstart.md).
+
 ## Run in two commands
 
 Requires **Node.js 22+** and npm. Basic rehearsal works without credentials. Runtime AI uses your Gemini API key; Twitch mode uses your broadcaster authorization.
@@ -74,7 +76,7 @@ End any rehearsal before connecting. A successful connection loads a fresh Twitc
 - Local atomic mission snapshots; interrupted active missions restore paused. JSON flight-recorder export.
 - Readable 16px body text, 44–48px controls, responsive layouts, confirmation/export before end/reset, keyboard controls, native dialog focus handling and reduced-motion support.
 
-**Verification status:** 57 automated tests, production build and browser rehearsal cover the upgraded expedition. Both rescue paths are tested; desktop, 390px mobile and 1920×1080 overlay layouts were inspected. Real Gemini 3.8 Flash has generated both the original classic objective and a complete three-act script without fallback. The broadcaster OAuth connection and both actual EventSub subscriptions are live. Real audience gameplay, incoming raids and OBS composition remain to verify; see [live evidence](docs/live-ai-verification.md) and [test status](docs/testing.md). A browser overlay preview is not an OBS recording, and this repository is not confirmation of a completed Devpost submission.
+**Verification status:** 83 automated tests plus a compiled-launcher smoke test, production build and browser rehearsal cover the upgraded expedition. Both rescue paths are tested; desktop, 390px mobile and 1920×1080 overlay layouts were inspected. Real Gemini 3.8 Flash has generated both the original classic objective and a complete three-act script without fallback. The owner verified broadcaster OAuth and both actual EventSub subscriptions in the recorded live session. Real audience gameplay, incoming raids and OBS composition remain to verify; see [live evidence](docs/live-ai-verification.md) and [test status](docs/testing.md). A browser overlay preview is not an OBS recording, and this repository is not confirmation of a completed Devpost submission.
 
 ## Cost and data
 
@@ -87,13 +89,11 @@ Gemini keys and Twitch OAuth tokens stay in process memory. AI prompts send the 
 ## Develop and verify
 
 ```sh
-npm test
-npm run check
-npm run build
+npm run verify
 npm audit --omit=dev
 ```
 
-GitHub Actions runs tests, type checks/build and the production dependency audit. Lockfile is committed. Source is TypeScript, React, Vite, Express, Zod and `ws`; fonts are bundled locally and scene art is original SVG.
+GitHub Actions runs tests, type checks/build, a compiled production smoke test, formatting and the production dependency audit. Successful runs publish a credential-free compiled artifact for reviewers. Lockfile is committed. Source is TypeScript, React, Vite, Express, Zod and `ws`; fonts are bundled locally and scene art is original SVG.
 
 ```text
 src/         React dashboard, overlay and styling

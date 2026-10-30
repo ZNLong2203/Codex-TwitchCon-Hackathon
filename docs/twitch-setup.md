@@ -21,8 +21,8 @@ The authoritative reference is [Twitch application registration](https://dev.twi
 4. Paste the **Client ID** and click **Authorize with Twitch**.
 5. On Twitch, verify the account is the broadcaster whose chat you will use. Authorize the requested **read chat** scope, `user:read:chat`. RAID//RELAY does not request chat-writing or moderator powers.
 6. The browser returns to the local dashboard. The app validates the returned state, validates the token server-side, opens EventSub and creates the chat-message and incoming-raid subscriptions. Wait for **Connected** and **2 subscriptions**.
-7. A fresh mission is now in **Twitch mode**. Launch it, and type `!scan`, `!repair`, or `!boost` in your channel's real Twitch chat. The system meter and activity feed should change.
-8. To test a real relay, ask three distinct Twitch accounts to use the three different commands within 15 seconds. One account switching roles cannot trigger it.
+7. A fresh mission is now in **Twitch mode**. Optionally generate and approve a three-act AI script before launch. Launch it and ask three distinct accounts to type `!scan` in your channel's real chat. Each accepted unique scout advances the first act. Locked-role commands do not score.
+8. Scouting opens a 20-second ballot: `!route beacon` or `!route drift`. Each account has one editable vote. With default settings, beacon then needs four engineers using `!repair`, followed by two pilots using `!boost`; drift needs two engineers, then four pilots. The same accounts can help in later acts after cooldown. At least four real accounts can finish either path. Classic relay mode instead uses three different commands/people within 15 seconds for its relay bonus.
 
 The token is not written to a database, `.env`, a screenshot or flight recorder. The callback URL fragment is cleared before the app sends the token to the local server. Restarting requires authorizing again. Disconnect closes EventSub and removes the server's token; revoke the application in your Twitch account Connections if you want to invalidate the grant at Twitch too.
 
@@ -42,7 +42,7 @@ The overlay is local. A phone on another computer cannot use `localhost` to acce
 
 ## 4. Film real evidence
 
-Rehearsal is useful for practicing, but the submission video needs real Twitch footage. Capture the Twitch chat and overlay together. Show real chat commands affecting the scene, the three-person relay, and, if possible, an authorized incoming raid. If a raid cannot be arranged, clearly label any simulated raid segment and distinguish it from the proven live chat integration. Do not represent rehearsal as a real audience. See [demo script](demo-script.md).
+Rehearsal is useful for practicing, but the submission video needs real Twitch footage. Capture the Twitch chat and overlay together. Show real chat commands affecting the scene, the expedition route vote and role handoffs (or the classic relay), and, if possible, an authorized incoming raid. If a raid cannot be arranged, clearly label any simulated raid segment and distinguish it from the proven live chat integration. Do not represent rehearsal as a real audience. See [demo script](demo-script.md).
 
 ## Troubleshooting
 

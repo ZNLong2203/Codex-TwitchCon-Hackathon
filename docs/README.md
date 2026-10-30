@@ -1,5 +1,6 @@
 # Project documentation
 
+- [Reviewer quick start and compiled build](judge-quickstart.md)
 - [Quick start and project overview](../README.md)
 - [Research, event requirements, and existing winners](research.md)
 - [Three-act expedition, route votes and visual consequences](expedition.md)
