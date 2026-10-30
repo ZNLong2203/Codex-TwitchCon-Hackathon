@@ -1,0 +1,13 @@
+# Project documentation
+
+- [Quick start and project overview](../README.md)
+- [Research, event requirements, and existing winners](research.md)
+- [Twitch application and OBS setup](twitch-setup.md)
+- [Architecture, privacy, and runtime cost](architecture.md)
+- [Testing and current verification limits](testing.md)
+- [English Devpost draft](submission.md)
+- [Under-three-minute demo script](demo-script.md)
+- [Codex build record](codex-build.md)
+- [Third-party licenses](third-party-notices.md)
+
+Internal strategy, credentials and mission snapshots belong in the ignored `private/` directory. Public documentation contains no credentials.
