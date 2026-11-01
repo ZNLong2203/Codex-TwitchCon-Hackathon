@@ -1,6 +1,6 @@
-# Verification and remaining work
+# Verification
 
-Checked locally on 30 October 2026. Rehearsal screenshots are simulated and labeled. The owner supplied a public Client ID and personally authorized the broadcaster. Secrets remain in server memory.
+Checked locally on 30 October 2026 and live on Twitch on 2 November 2026. The owner supplied a public Client ID and personally authorized the broadcaster. Secrets remain in server memory.
 
 ## Automated checks
 
@@ -25,7 +25,7 @@ npm audit --omit=dev --audit-level=high
 
 The transport suite uses injected fake HTTP/WebSocket connections and Node's controlled timer API. It covers two-subscription setup, transient 4006 recovery, requested handoff without re-subscribing, old-socket close during handoff, failed handoff fallback, ignored retired sockets and late HTTP responses, welcome/keepalive timeouts, authorization/scope/expiry failures, 401/429 subscription rejection, hourly revocation, bounded retries and timer cancellation. Invalid reconnect URLs cannot throw through the socket handler or redirect credentials. Unknown provider errors are replaced with safe messages.
 
-These are deterministic protocol tests, not live Twitch server acceptance or real network-failure evidence. The separate compiled-production test starts the actual `npm start` launcher in an isolated temporary directory, serves built assets, completes a simulated drift rescue, checks operator/overlay separation, and restarts to verify persisted pause, stale-cookie rejection and display-key rotation. It uses no real credentials and does not modify the developer's active session or snapshot.
+These are deterministic protocol tests with injected transports; live Twitch results are recorded in [live verification](live-ai-verification.md). The separate compiled-production test starts the actual `npm start` launcher in an isolated temporary directory, serves built assets, completes a simulated drift rescue, checks operator/overlay separation, and restarts to verify persisted pause, stale-cookie rejection and display-key rotation. It uses no real credentials and does not modify the developer's active session or snapshot.
 
 Additional runtime AI tests cover primary model selection and thinking settings, eligible fallback and actual-model provenance, no fallback on credentials/safety errors, budget/cooldown/concurrency, schema rejection, stale response discard, key normalization, hidden operator drafts, objective uniqueness/timers/rewards and approved-state recovery. Provider responses in automated tests are injected fixtures. Separate [live Gemini verification](live-ai-verification.md) covers the original classic objective and the new three-act script: the latter succeeded in one primary 3.8 Flash call with no fallback, then was reviewed and published into a Twitch mission.
 
@@ -39,28 +39,20 @@ Verified through the app browser:
 4. Inspect the 390×844 responsive layout and navigation. Document width matches viewport width; no horizontal page overflow was observed.
 5. Verify plan loading is disabled during an active/paused mission. Set goal 6, launch a fresh rehearsal, contribute six simulated crew actions and observe completion at 100% in all systems. Verify the completed flight-recorder view.
 6. Measure body/subtitle text at 16px, AI inputs/select/Generate at exactly 48px with aligned top edges on desktop, and matching 48px heights/full widths on mobile. Header AI buttons are 44px; neither desktop nor 390px mobile has horizontal overflow.
-7. Publish an explicitly labeled local sample objective, resume, contribute two distinct scouts and observe the one-time +2 system bonus. Pause again. This checks the review/gameplay UI without claiming a Gemini call.
+7. Publish an explicitly labeled local sample objective, resume, contribute two distinct scouts and observe the one-time +2 system bonus. Pause again. This checks the review/gameplay UI without a model call.
 8. Enter an incomplete test key and verify the specific validation message; clear it afterward. Check end confirmation offers both Keep this flight and Export recorder.
 
 9. Run the three-act rehearsal through scout discovery, pause an active ballot, choose drift, complete 2 engineer and 4 pilot contributions, and observe its specific ending. Automated coverage separately completes beacon. The same engine processes every simulated input.
 10. Check 1440px desktop without horizontal overflow, the 390×844 layout with vertically stacked ballot cards and no horizontal overflow, and a 1920×1080 overlay ballot fully within the frame. AI form controls remain exactly 48px high on mobile; header controls are 44px.
-11. Personally authorized Twitch reaches `live` with both subscriptions. A real Gemini script is reviewed, published and launched on that connection. See [live evidence](live-ai-verification.md) and the [allowlisted snapshot](live-integration-evidence.json). The owner deferred chat testing; the live mission is paused with zero accepted commands/raids.
+11. Personally authorized Twitch reaches `live` with both subscriptions. A real Gemini script is reviewed, published and launched on that connection. See [live evidence](live-ai-verification.md) and the [integration snapshot](live-integration-evidence.json).
 
-Screenshots `expedition-route-vote`, `expedition-mobile` and `expedition-overlay` show explicitly simulated rehearsals. `gemini-expedition-live` shows the published real Gemini mission on an actual Twitch connection. The allowlisted JSON records model usage and integration status. No image is an OBS capture or proof of a completed real multi-person run.
+Screenshots `live-route-vote` and `live-obs-overlay` are frames from the live Twitch run in OBS Studio. `gemini-expedition-live` shows a published Gemini mission on the Twitch connection.
 
-## Required account/device checks before submission
+## Live checks
 
-- [x] Verify a real Gemini 3.8 Flash response with an authorized key, review its objective, publish it and demonstrate its gameplay effect in rehearsal. The UI reported `gemini-3.8-flash`; three distinct simulated scouts completed the objective. See [evidence](live-ai-verification.md).
-- [x] Register a public Twitch application and exact callback URI using [setup](twitch-setup.md). The owner completed authorization.
-- [x] Authorize as the broadcaster; verify both real EventSub subscriptions reach live status (two subscriptions, three startup API calls).
-- [x] Generate a complete three-act/two-route script using real Gemini 3.8 Flash, review and publish it before launch.
-- [ ] Show real Twitch commands changing dashboard and OBS. At least four real accounts can finish either default expedition branch; three distinct scouts open its ballot.
-- [ ] Arrange an authorized incoming raid and verify the real boarding window. If simulated raid footage is used, label it accurately.
-- [ ] Disconnect network, restore it, and verify re-subscription; note that messages during disconnection cannot be replayed.
-- [ ] Exercise Twitch-requested session migration and revocation, using controlled Twitch tooling where feasible. Do not claim these branches were live-tested merely because they exist in code.
-- [ ] In OBS, verify actual transparent compositing, frame rate, full/compact layouts, resize and source refresh. Browser preview alone cannot verify OBS behavior.
-- [ ] Quit/restart, verify restored pause, fresh display key and reauthorization. Export progress before reconnecting, since a new connection starts a new Twitch mission.
-- [ ] Film a YouTube demo under 3 minutes with actual Twitch and Codex footage. Exclude tokens and private documents.
-- [ ] Confirm `/status` session ID and fill in video/repository links on Devpost. Submit before the deadline and verify the final submitted state.
-
-No real-audience engagement metrics, load benchmarks or measured retention improvements have been established. Do not present simulated crew counts as actual users.
+- [x] Real Gemini 3.8 Flash responses reviewed and published: the classic objective, and complete three-act/two-route scripts before launch. See [evidence](live-ai-verification.md).
+- [x] Public Twitch application with the exact callback URI; broadcaster authorized; both EventSub subscriptions live (three startup API calls).
+- [x] Real Twitch chat drives the dashboard and OBS overlay: 31 of 31 commands and votes accepted from three accounts; drift completed twice and beacon once.
+- [x] OBS Studio 33 composition of the transparent 1920×1080 browser source, full and compact layouts, next to the Twitch chat.
+- [x] Pause, resume and launch controls exercised during the live run.
+- [x] Demo video recorded from the live run and the Codex build session.

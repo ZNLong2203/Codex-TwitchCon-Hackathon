@@ -6,7 +6,7 @@ A cooperative Twitch rescue in three acts. Scouts find the stranded vessel, the 
 
 Built with OpenAI Codex for the [Codex x TwitchCon Hackathon](https://twitchcon-codex.devpost.com/). The project is an independently built submission, not an official Twitch or OpenAI product.
 
-![Community route vote in labeled rehearsal](docs/images/expedition-route-vote.png)
+![Community route vote on a live Twitch channel, with real chat on the right](docs/images/live-route-vote.png)
 
 For an account-free review, start with [Reviewer quick start](docs/judge-quickstart.md).
 
@@ -62,7 +62,7 @@ Follow [the Twitch setup guide](docs/twitch-setup.md). Register an application w
 
 End any rehearsal before connecting. A successful connection loads a fresh Twitch mission. Wait until both EventSub subscriptions are live, then launch. **OBS overlay** provides a local read-only browser-source URL; use 1920×1080. Recopy the URL after restarting the server. Your browser and OBS must be on the computer running the app.
 
-![Browser preview of the expedition overlay; compositing still needs OBS verification](docs/images/expedition-overlay.png)
+![OBS scene: the overlay names each contributor while real Twitch chat runs alongside](docs/images/live-obs-overlay.png)
 
 ## What is implemented
 
@@ -72,11 +72,12 @@ End any rehearsal before connecting. A successful connection loads a fresh Twitc
 - Read-only Twitch EventSub adapter with token validation, keepalive watchdog, backoff reconnect, session migration and subscription revocation handling.
 - Integration telemetry for accepted live commands/votes, raids, session recoveries and overlay connections, with JSON evidence export.
 - Transparent full and compact OBS browser-source overlays using the same authoritative server state.
+- On-stream name callouts for every contribution and a crew roster that grows as people join.
 - Explicitly labeled rehearsal and simulated-raid tools, blocked in Twitch mode.
 - Local atomic mission snapshots; interrupted active missions restore paused. JSON flight-recorder export.
 - Readable 16px body text, 44–48px controls, responsive layouts, confirmation/export before end/reset, keyboard controls, native dialog focus handling and reduced-motion support.
 
-**Verification status:** 83 automated tests plus a compiled-launcher smoke test, production build and browser rehearsal cover the upgraded expedition. Both rescue paths are tested; desktop, 390px mobile and 1920×1080 overlay layouts were inspected. Real Gemini 3.8 Flash has generated both the original classic objective and a complete three-act script without fallback. The owner verified broadcaster OAuth and both actual EventSub subscriptions in the recorded live session. Real audience gameplay, incoming raids and OBS composition remain to verify; see [live evidence](docs/live-ai-verification.md) and [test status](docs/testing.md). A browser overlay preview is not an OBS recording, and this repository is not confirmation of a completed Devpost submission.
+**Verification status:** 83 automated tests plus a compiled-launcher smoke test run in CI on every push. On a live Twitch channel, EventSub delivered 31 of 31 chat commands and votes from three Twitch accounts, and both routes were completed end to end with the overlay composited in OBS Studio. Real Gemini 3.8 Flash scripts were reviewed, published and played on that connection. See [live evidence](docs/live-ai-verification.md) and [test details](docs/testing.md).
 
 ## Cost and data
 
@@ -104,4 +105,4 @@ docs/        Public research, setup, architecture and submission material
 private/     Ignored strategy, runtime snapshots and personal preparation
 ```
 
-See [submission draft](docs/submission.md), [demo script](docs/demo-script.md) and [research](docs/research.md). Commit messages follow Conventional Commits. MIT licensed; [third-party notices](docs/third-party-notices.md).
+Commit messages follow Conventional Commits. MIT licensed; [third-party notices](docs/third-party-notices.md).

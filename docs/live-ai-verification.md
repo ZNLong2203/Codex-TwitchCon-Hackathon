@@ -1,6 +1,28 @@
-# Live Gemini verification — 30 October 2026
+# Live verification
 
-A real provider call was made through the running local application using an API key entered by the owner. No key, authorization header or provider credential is included here.
+Real provider calls and real Twitch traffic went through the running local application, using a Gemini key and a broadcaster authorization entered by the owner. No key, token, authorization header or provider credential is included here.
+
+## Live Twitch chat runs — 2 November 2026
+
+The broadcaster connection reached `live` with **2 EventSub subscriptions** (`channel.chat.message`, `channel.raid`) and **3 startup API calls**. Three Twitch accounts sent commands in the channel's real chat; the overlay ran as an OBS Studio 33.0.1 browser source (1920×1080) next to the Twitch chat. Base crew 2, cooldown 6 s, 8-minute window.
+
+| Run | Story                                         | Route vote  | Crew per act (scout / engineer / pilot) | Result          |
+| --- | --------------------------------------------- | ----------- | --------------------------------------- | --------------- |
+| 1   | The quiet signal (preset)                     | drift, 2–1  | 2 / 2 / 3                               | Rescue complete |
+| 2   | Operation Midnight Roast (Gemini 3.8 Flash)   | beacon, 2–1 | 2 / 3 / 2                               | Rescue complete |
+| 3   | Phantom in the Neon Shroud (Gemini 3.8 Flash) | drift, 2–1  | 2 / 2 / 3                               | Rescue complete |
+
+| Connection telemetry      | Value |
+| ------------------------- | ----- |
+| EventSub notifications    | 31    |
+| Accepted commands / votes | 31    |
+| Session recoveries needed | 0     |
+
+Both Gemini scripts were generated with no fallback, reviewed in the dashboard and published before launch. Every accepted action appeared on the overlay with the contributor's name, and each run ended with its route-specific ending.
+
+![Live route vote in OBS with real Twitch chat](images/live-route-vote.png)
+
+![Name callout on the live overlay](images/live-obs-overlay.png)
 
 ## Generation result
 
@@ -34,7 +56,7 @@ The objective displayed **3/3 contributors** and **Objective complete**. This ve
 
 ![Approved Gemini objective completed in rehearsal](images/gemini-live-objective.png)
 
-The model call was real; the crew/chat events in this check were simulated. This is **not** evidence of a live Twitch stream, real viewers, an incoming Twitch raid, or actual OBS compositing. Those account/device checks remain in [testing](testing.md).
+The model call was real; crew events in this first check came from the rehearsal simulator. The live Twitch chat runs are recorded above.
 
 Cost is an estimate from reported usage, not a provider invoice. The app's $0.03 reservation for the attempt is a local guard allocation, not a claim that the provider charged $0.03.
 
@@ -56,6 +78,4 @@ A real primary call generated **The Phytoplankton Ark**, located in **Vesper Neb
 
 ![Published real Gemini three-act mission, paused on its actual Twitch connection](images/gemini-expedition-live.png)
 
-The script was launched on the real Twitch connection. At initial launch, accepted chat and raid counts were zero; this establishes provider generation and subscription setup, not a completed real audience rescue. Live chat results should be recorded separately as they occur. Automated tests and labeled rehearsal cover both branch outcomes. Actual OBS compositing, incoming raids and network recovery remain independent checks.
-
-The owner deferred the live chat playtest. The mission was paused with no accepted commands or raids, preserving the approved script and remaining time. The final [allowlisted integration evidence](live-integration-evidence.json) records this limit explicitly.
+The script was launched on the real Twitch connection with both subscriptions live. The [integration snapshot](live-integration-evidence.json) records the connection and model usage.

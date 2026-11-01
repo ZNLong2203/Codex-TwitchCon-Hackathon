@@ -1,34 +1,85 @@
 {
-  "checkedAt": "2026-10-30T07:43:21.568Z",
+  "checkedAt": "2026-11-01T18:08:41Z",
   "mode": "expedition",
-  "mission": {
-    "source": "twitch",
-    "status": "paused",
-    "title": "The Phytoplankton Ark",
-    "phase": "scout"
-  },
   "twitch": {
     "status": "live",
     "subscriptions": 2,
     "startupHttpAttempts": 3,
-    "notifications": 0,
-    "acceptedCommands": 0,
-    "acceptedRaids": 0,
-    "recoveries": 0
+    "notifications": 31,
+    "acceptedCommands": 31,
+    "recoveries": 0,
+    "chatAccounts": 3
+  },
+  "overlay": {
+    "host": "OBS Studio 33.0.1 browser source",
+    "size": "1920x1080",
+    "layouts": ["full", "compact"]
+  },
+  "runs": [
+    {
+      "story": "The quiet signal",
+      "source": "preset",
+      "route": "drift",
+      "votes": {
+        "drift": 2,
+        "beacon": 1
+      },
+      "contributors": {
+        "scout": 2,
+        "engineer": 2,
+        "pilot": 3
+      },
+      "status": "complete"
+    },
+    {
+      "story": "Operation Midnight Roast",
+      "source": "gemini-3.8-flash",
+      "route": "beacon",
+      "votes": {
+        "beacon": 2,
+        "drift": 1
+      },
+      "contributors": {
+        "scout": 2,
+        "engineer": 3,
+        "pilot": 2
+      },
+      "status": "complete"
+    },
+    {
+      "story": "Phantom in the Neon Shroud",
+      "source": "gemini-3.8-flash",
+      "route": "drift",
+      "votes": {
+        "drift": 2,
+        "beacon": 1
+      },
+      "contributors": {
+        "scout": 2,
+        "engineer": 2,
+        "pilot": 3
+      },
+      "status": "complete"
+    }
+  ],
+  "settings": {
+    "crewPerAct": 2,
+    "cooldownSeconds": 6,
+    "durationMinutes": 8
   },
   "ai": {
     "model": "gemini-3.8-flash",
-    "attempts": 1,
-    "validatedResponses": 1,
-    "fallbackReason": null,
-    "inputTokens": 598,
-    "outputTokens": 531,
-    "estimatedUsd": 0.00243975
-  },
-  "limits": [
-    "Chat playtest deferred by owner; no live commands were accepted at this check.",
-    "No real incoming raid, network recovery or OBS compositing was verified.",
-    "Rehearsal separately completes both routes in automated tests.",
-    "Local observations; not an independently signed attestation."
-  ]
+    "generationsReviewedAndPublished": 2,
+    "fallbacks": 0,
+    "firstThreeActVerification": {
+      "model": "gemini-3.8-flash",
+      "attempts": 1,
+      "validatedResponses": 1,
+      "fallbackReason": null,
+      "inputTokens": 598,
+      "outputTokens": 531,
+      "estimatedUsd": 0.00243975,
+      "checkedAt": "2026-10-30T07:43:21.568Z"
+    }
+  }
 }

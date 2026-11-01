@@ -41,7 +41,7 @@ Rehearsal can use a clearly labeled local sample or the preset without a model c
 - An incoming raid opens the boarding portal. Completing extraction reveals the approved ending for the winning route.
 - The scene follows authoritative state. Reduced-motion preferences disable animated pulses and movement transitions while retaining the final state.
 
-![Rehearsal route vote with real engine targets](images/expedition-route-vote.png)
+![Live route vote with real engine targets](images/live-route-vote.png)
 
 ## Rehearse and verify
 

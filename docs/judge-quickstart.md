@@ -32,14 +32,14 @@ This package includes the verified compiled client/server, startup script, depen
 4. When scouting finishes, a 20-second ballot opens. The simulator casts route votes; the operator may use **Simulate beacon vote** / **Simulate drift vote** and **Close ballot now**. One simulated vote represents one generated fixture identity, not a real account.
 5. With the default target of three: beacon needs **4 engineers → 2 pilots**; drift needs **2 engineers → 4 pilots**. Repeated actions from one identity cannot fill another person's place in an act.
 6. Watch repairs restore the shield and attach the rescued cargo, then boosts tow it along the selected path. Its ending appears only after extraction completes.
-7. Open **OBS overlay → Preview overlay**. It displays the same authoritative state with **SIMULATED REHEARSAL** labeling. This browser preview is not an OBS capture.
+7. Open **OBS overlay → Preview overlay**. It displays the same authoritative state with **SIMULATED REHEARSAL** labeling.
 8. Export the **Flight recorder**. It records the branch and aggregate contributor/vote counts; simulation labeling stays attached. Pause/resume preserves timers. Active missions restore paused after a graceful restart.
 
 ## Verify actual AI and Twitch
 
-The owner already verified one real Gemini 3.8 Flash three-act generation without fallback and personally authorized Twitch with both actual EventSub subscriptions. See [recorded evidence](live-ai-verification.md) and the [allowlisted snapshot](live-integration-evidence.json). Those observations establish model output and subscription setup. The owner deferred the real multi-person chat playtest; no live rescue completion, real raid, OBS composition or measured engagement gain is claimed.
+RAID//RELAY has been run live on Twitch: EventSub delivered 31 of 31 chat commands and votes from three accounts, both routes were completed end to end with the overlay composited in OBS Studio, and real Gemini 3.8 Flash scripts were reviewed and published before launch. See [live verification](live-ai-verification.md) and the [integration snapshot](live-integration-evidence.json).
 
-To repeat with your own accounts, follow [Gemini setup](ai-setup.md) and [Twitch/OBS setup](twitch-setup.md). Review and publish the AI script **before launch**. At least four real accounts can finish either default branch; the same people may contribute in later acts after cooldown. Simulated inputs are blocked in Twitch mode. Keys and tokens must be entered locally and are never included in the repository or artifact.
+To repeat with your own accounts, follow [Gemini setup](ai-setup.md) and [Twitch/OBS setup](twitch-setup.md). Review and publish the AI script **before launch**. With the default base of three, four accounts can finish either branch (three with a base of two); the same people may contribute in later acts after cooldown. Simulated inputs are blocked in Twitch mode. Keys and tokens must be entered locally and are never included in the repository or artifact.
 
 ## Reproduce the verification suite
 
@@ -49,6 +49,6 @@ In a source checkout with development dependencies installed:
 npm run verify
 ```
 
-This runs 83 engine/API/director/Twitch tests, builds the app, executes the compiled-launcher smoke test in a temporary directory, and checks formatting. The transport tests inject fake HTTP/WebSocket providers and a controlled clock. They exercise recovery, keepalives, handoff races and authorization failures without spending model quota or claiming Twitch server acceptance. The production test finishes a full simulated rescue and verifies access isolation and restart recovery. It does not touch your `.env`, running port or mission snapshot.
+This runs 83 engine/API/director/Twitch tests, builds the app, executes the compiled-launcher smoke test in a temporary directory, and checks formatting. The transport tests inject fake HTTP/WebSocket providers and a controlled clock. They exercise recovery, keepalives, handoff races and authorization failures without spending model quota. The production test finishes a full simulated rescue and verifies access isolation and restart recovery. It does not touch your `.env`, running port or mission snapshot.
 
-The CI workflow also audits production dependencies and uploads the compiled artifact after checks pass. See [test coverage and remaining account/device checks](testing.md).
+The CI workflow also audits production dependencies and uploads the compiled artifact after checks pass. See [verification details](testing.md).

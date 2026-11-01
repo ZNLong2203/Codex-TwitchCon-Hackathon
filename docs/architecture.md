@@ -75,7 +75,7 @@ Default guard: $0.25/server process, eight provider attempts per mission, 20-sec
 
 At a normal successful connection: one token validation GET and two subscription POSTs, then one validation GET/hour. Reconnects add subscription calls; errors and retries affect actual counts. Incoming events do not trigger additional API calls. The connection panel counts attempted validation/subscription HTTP calls, received EventSub notifications, accepted live commands/votes, accepted raids and successful recoveries. Counters reset on a new Twitch connection. Export includes these aggregates. Overlay-client count includes ordinary browser previews, so OBS must be checked separately; it is not a Twitch quota meter, dollar invoice or stream viewer count. No chat messages are sent, so the app does not consume chat send-message buckets.
 
-Use [Twitch rate-limit documentation](https://dev.twitch.tv/docs/api/guide/#twitch-rate-limits) and your actual provider responses as authority. No event rules found in [research](research.md) require a spending cap or runtime AI. Codex plan limits are separate; [official OpenAI pricing guidance](https://learn.chatgpt.com/docs/pricing) describes that distinction. Do not claim unlimited usage or invent a fixed Codex quota.
+Use [Twitch rate-limit documentation](https://dev.twitch.tv/docs/api/guide/#twitch-rate-limits) and your actual provider responses as authority. Codex plan limits are separate from runtime costs; [official OpenAI pricing guidance](https://learn.chatgpt.com/docs/pricing) describes that distinction.
 
 ## Scope limits
 

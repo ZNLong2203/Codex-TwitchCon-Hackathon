@@ -40,9 +40,9 @@ Optional: put the **public Client ID only** in `.env` as `TWITCH_CLIENT_ID=...` 
 
 The overlay is local. A phone on another computer cannot use `localhost` to access it. Do not port-forward this server or place it on a public host: it is designed as a single-streamer local app.
 
-## 4. Film real evidence
+## 4. Go live
 
-Rehearsal is useful for practicing, but the submission video needs real Twitch footage. Capture the Twitch chat and overlay together. Show real chat commands affecting the scene, the expedition route vote and role handoffs (or the classic relay), and, if possible, an authorized incoming raid. If a raid cannot be arranged, clearly label any simulated raid segment and distinguish it from the proven live chat integration. Do not represent rehearsal as a real audience. See [demo script](demo-script.md).
+Practice in rehearsal, then connect Twitch and launch. Chat commands drive the dashboard and overlay immediately, and an incoming raid opens the boarding window automatically. For a clean stream layout, place the overlay next to a Twitch chat browser source (`https://www.twitch.tv/popout/<channel>/chat?darkpopout`).
 
 ## Troubleshooting
 

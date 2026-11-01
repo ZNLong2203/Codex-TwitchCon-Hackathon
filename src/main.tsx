@@ -309,6 +309,7 @@ function App() {
   const target = (r: Role) => m.expedition?.targets[r] ?? m.settings.goal;
   const rehearsal = m.source === 'rehearsal';
   const overlayUrl = config.overlayUrl + (compact ? '&layout=compact' : '');
+  const lastAction = m.feed.find((item) => item.kind === 'action');
   if (overlay)
     return (
       <div
@@ -328,6 +329,18 @@ function App() {
           <div className="obs-body">
             <div className="obs-world">
               <SpaceScene mission={m} now={now} />
+              {m.status === 'active' && lastAction?.role && (
+                <div
+                  className="obs-callout"
+                  key={lastAction.id}
+                  style={{ '--role': roleInfo[lastAction.role].color } as React.CSSProperties}
+                >
+                  <span className="obs-callout-role">{roleInfo[lastAction.role].name}</span>
+                  <span>
+                    <strong>{lastAction.name}</strong> {roleInfo[lastAction.role].verb}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="obs-info">
               <span className="eyebrow">{labels[m.status]}</span>
@@ -367,6 +380,19 @@ function App() {
                   </div>
                 </div>
               ))}
+              {m.crew.length > 0 && (
+                <div className="obs-crew" aria-label="Crew">
+                  {m.crew.slice(-8).map((p) => (
+                    <span
+                      key={p.id}
+                      style={{ '--role': roleInfo[p.role].color } as React.CSSProperties}
+                    >
+                      {p.name}
+                    </span>
+                  ))}
+                  {m.crew.length > 8 && <span className="more">+{m.crew.length - 8}</span>}
+                </div>
+              )}
               <small>
                 {m.crewCount} crew ·{' '}
                 {m.expedition

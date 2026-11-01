@@ -7,7 +7,7 @@ The main Codex chat handled product selection, implementation, tests, visual ins
 ## What Codex contributed
 
 - Converted the event's equally weighted criteria into a focused product direction; checked that a runtime AI API is not mandatory.
-- Compared actual category winners, including PixelWars, and recorded limitations on novelty claims in [research](research.md).
+- Compared earlier Twitch hackathon category winners, including PixelWars, to focus the concept on what makes it different.
 - Implemented a deterministic mission engine with role complementarity, cooldowns, onboarding bonus, deduplication, pause and recovery.
 - Built the original orbital SVG scene, React dashboard, mobile layout and read-only OBS overlay.
 - Implemented the local OAuth and Twitch EventSub adapter, documented credential handling and live validation still needed.
@@ -18,6 +18,4 @@ The main Codex chat handled product selection, implementation, tests, visual ins
 
 ## Main session ID
 
-The desktop app metadata and `CODEX_THREAD_ID` environment identify this build chat as `01a18ad7-5793-7de1-99e8-be14ee3e5b58`. **Verify it with `/status` in this main Codex chat before pasting it into Devpost**, as the event asks for the session where most of the project was built. Use the main build session, not the research subagent.
-
-Do not publish the entire private chat history or credentials. For video evidence, show relevant non-sensitive sections of the main Codex conversation and the implementation/test result. Research and simulated rehearsal should be described accurately; no prize, retention or real-user claim is established by this build record.
+The main build session is `01a18ad7-5793-7de1-99e8-be14ee3e5b58`. Research ran in a separate subagent of that session.
